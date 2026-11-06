@@ -8,7 +8,13 @@ const crypto = require('crypto');
 const KEY_FILE = path.join(__dirname, 'pettycash-513910-444a1e09baaf.json');
 let creds = null;
 try {
-  if (fs.existsSync(KEY_FILE)) {
+  if (process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
+    creds = typeof process.env.GOOGLE_SERVICE_ACCOUNT_KEY === 'string'
+      ? JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY)
+      : process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+  } else if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
+    creds = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+  } else if (fs.existsSync(KEY_FILE)) {
     creds = JSON.parse(fs.readFileSync(KEY_FILE, 'utf8'));
   }
 } catch (e) {

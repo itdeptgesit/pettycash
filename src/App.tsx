@@ -232,9 +232,15 @@ export default function App() {
         setTxs(loadLocal());
       }
     } catch (e: any) {
-      setGalat('Gagal membaca Google Sheets: ' + (e as Error).message + ' (menampilkan data lokal).');
+      const errMsg = (e as Error).message || '';
+      if (errMsg.includes('404') || errMsg.includes('belum aktif') || errMsg.includes('belum tersedia')) {
+        setGalat('Mode Lokal aktif (Layanan backend Google Sheets belum aktif di hosting ini).');
+        setGoogleConnected(false);
+      } else {
+        setGalat('Gagal membaca Google Sheets: ' + errMsg + ' (menampilkan data lokal).');
+        setGoogleConnected(modeGoogle());
+      }
       setTxs(loadLocal());
-      setGoogleConnected(modeGoogle());
     } finally {
       setMemuat(false);
     }

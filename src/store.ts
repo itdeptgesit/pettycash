@@ -65,10 +65,29 @@ export function loginGoogle(): Promise<{ token: string; email: string }> {
   });
 }
 
+// Helper pembacaan respon API yang aman dari HTML error page
+async function parseApiResponse(res: Response, fallbackActionName: string): Promise<any> {
+  const ctype = res.headers.get('content-type') || '';
+  if (!res.ok) {
+    if (res.status === 404) {
+      throw new Error('Layanan backend API belum aktif di hosting ini (404)');
+    }
+    if (ctype.includes('application/json')) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || `${fallbackActionName} gagal (status ${res.status})`);
+    }
+    throw new Error(`Server mengembalikan status HTTP ${res.status}`);
+  }
+  if (!ctype.includes('application/json')) {
+    throw new Error('Respon server bukan format JSON');
+  }
+  return await res.json();
+}
+
 // Ambil seluruh data transaksi langsung dari Google Sheets API v4 via backend lokal
 export async function fetchGoogle(): Promise<Tx[]> {
   const res = await fetch('/api/transactions');
-  const data = await res.json();
+  const data = await parseApiResponse(res, 'Membaca transaksi');
   if (!data.ok) throw new Error(data.error || 'Gagal membaca transaksi dari Google Sheets API');
   return data.transactions as Tx[];
 }
@@ -87,7 +106,7 @@ export async function addGoogle(tx: Tx, bukti: BuktiFile | null): Promise<Tx> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ tx, bukti }),
   });
-  const data = await res.json();
+  const data = await parseApiResponse(res, 'Menyimpan transaksi');
   if (!data.ok) throw new Error(data.error || 'Gagal menyimpan transaksi ke Google Sheets API');
   return data.tx as Tx;
 }
@@ -99,7 +118,7 @@ export async function bulkAddGoogle(items: Tx[]): Promise<number> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ items }),
   });
-  const data = await res.json();
+  const data = await parseApiResponse(res, 'Sinkronisasi data massal');
   if (!data.ok) throw new Error(data.error || 'Gagal sinkronisasi data lokal ke Google Sheets API');
   return data.count as number;
 }
@@ -107,11 +126,11 @@ export async function bulkAddGoogle(items: Tx[]): Promise<number> {
 // Uji koneksi langsung ke Google Sheets API
 export async function testGoogleConnection(): Promise<{ ok: boolean; count: number; email: string; msg: string }> {
   const resStatus = await fetch('/api/status');
-  const dataStatus = await resStatus.json();
+  const dataStatus = await parseApiResponse(resStatus, 'Pemeriksaan status server');
   if (!dataStatus.ok) throw new Error('API server tidak merespons');
 
   const resTx = await fetch('/api/transactions');
-  const dataTx = await resTx.json();
+  const dataTx = await parseApiResponse(resTx, 'Mengambil data transaksi');
   if (!dataTx.ok) throw new Error(dataTx.error || 'Gagal mengakses Google Sheets');
 
   const count = dataTx.transactions?.length || 0;
