@@ -534,7 +534,7 @@ export default function App() {
               title="Integrasi Google Sheets & Drive API (Klik untuk Pengaturan)"
             >
               <span className="badge-dot" />
-              {googleConnected ? (userEmail ? `Google Sheets (${userEmail})` : 'Google Sheets API Aktif') : 'Mode Lokal (Tersimpan)'}
+              {googleConnected ? 'Google Sheets Aktif' : 'Mode Lokal (Tersimpan)'}
             </span>
           </div>
           <div className="sub">
