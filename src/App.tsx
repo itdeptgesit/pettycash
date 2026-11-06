@@ -838,15 +838,61 @@ export default function App() {
                 </tr>
               ) : barisTersaring.length === 0 ? (
                 <tr>
-                  <td colSpan={11} style={{ textAlign: 'center', padding: '36px 16px', color: 'var(--fg-muted)' }}>
-                    Tidak ada transaksi yang cocok dengan kriteria pencarian.
+                  <td colSpan={11}>
+                    {adaFilter ? (
+                      <div className="table-empty-state">
+                        <div className="empty-state-title">Tidak ada transaksi yang cocok</div>
+                        <div className="empty-state-desc">
+                          Tidak ditemukan catatan kas yang sesuai dengan kata kunci pencarian atau filter yang Anda pilih.
+                        </div>
+                        <button
+                          type="button"
+                          className="btn sm outline-primary"
+                          style={{ marginTop: 12 }}
+                          onClick={() => {
+                            setCari('');
+                            setFilterJenis('all');
+                            setFilterSumber('all');
+                          }}
+                        >
+                          Reset Filter
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="table-empty-state">
+                        <div className="empty-state-title">
+                          Belum ada transaksi di bulan {bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'periode ini'}
+                        </div>
+                        <div className="empty-state-desc">
+                          {saldoAwalBulan !== 0
+                            ? `Saldo berjalan terbawa dari bulan sebelumnya sebesar ${rp(saldoAwalBulan)}. Belum ada mutasi pengeluaran maupun pengisian kas tercatat.`
+                            : 'Belum ada mutasi pengeluaran atau pengisian kas yang tercatat untuk periode ini.'}
+                        </div>
+                        <div style={{ display: 'inline-flex', gap: 8, marginTop: 14 }}>
+                          <button
+                            type="button"
+                            className="btn primary sm"
+                            onClick={() => setModalTransaksi({ buka: true, jenisAwal: 'out' })}
+                          >
+                            <IconPlus /> Catat Pengeluaran
+                          </button>
+                          <button
+                            type="button"
+                            className="btn outline-success sm"
+                            onClick={() => setModalTransaksi({ buka: true, jenisAwal: 'in' })}
+                          >
+                            <IconArrowDown /> + Isi Kas
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ) : (
                 tampil
               )}
 
-              {!memuat && !adaFilter && (
+              {!memuat && !adaFilter && barisTersaring.length > 0 && (
                 <tr className="checkpoint">
                   <td colSpan={8} className="lbl">
                     {bulanAktif !== 'all' ? `Saldo Akhir Kas (${formatBulanTahun(bulanAktif)})` : 'Saldo Akhir Buku Kas'}
@@ -857,7 +903,7 @@ export default function App() {
                 </tr>
               )}
 
-              {!memuat && (
+              {!memuat && barisTersaring.length > 0 && (
                 <tr className="print-total-row">
                   <td></td>
                   <td></td>
@@ -919,7 +965,54 @@ export default function App() {
             </div>
           ) : barisTersaring.length === 0 ? (
             <div className="mobile-empty-card">
-              Tidak ada transaksi yang sesuai kriteria pencarian.
+              {adaFilter ? (
+                <div>
+                  <div style={{ fontWeight: 600, color: 'var(--fg)', marginBottom: 4 }}>
+                    Tidak ada transaksi yang cocok
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 12 }}>
+                    Tidak ditemukan catatan kas yang sesuai dengan filter pencarian.
+                  </div>
+                  <button
+                    type="button"
+                    className="btn sm outline-primary"
+                    onClick={() => {
+                      setCari('');
+                      setFilterJenis('all');
+                      setFilterSumber('all');
+                    }}
+                  >
+                    Reset Filter
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ fontWeight: 600, color: 'var(--fg)', marginBottom: 4, fontSize: 13.5 }}>
+                    Belum ada transaksi di bulan {bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'periode ini'}
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 14, lineHeight: 1.4 }}>
+                    {saldoAwalBulan !== 0
+                      ? `Saldo berjalan terbawa dari bulan sebelumnya ${rp(saldoAwalBulan)}. Belum ada mutasi baru.`
+                      : 'Belum ada mutasi pengeluaran maupun pengisian kas tercatat.'}
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                    <button
+                      type="button"
+                      className="btn primary sm"
+                      onClick={() => setModalTransaksi({ buka: true, jenisAwal: 'out' })}
+                    >
+                      <IconPlus /> Pengeluaran
+                    </button>
+                    <button
+                      type="button"
+                      className="btn outline-success sm"
+                      onClick={() => setModalTransaksi({ buka: true, jenisAwal: 'in' })}
+                    >
+                      <IconArrowDown /> + Isi Kas
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             barisTersaring.map((b) => {
@@ -995,7 +1088,7 @@ export default function App() {
             })
           )}
 
-          {!memuat && !adaFilter && (
+          {!memuat && !adaFilter && barisTersaring.length > 0 && (
             <div className={`mobile-checkpoint-card ${sisa < 0 ? 'defisit' : ''}`}>
               <span className="m-cp-label">
                 {bulanAktif !== 'all' ? `Saldo Akhir Kas (${formatBulanTahun(bulanAktif)})` : 'Saldo Akhir Buku Kas'}
