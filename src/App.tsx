@@ -236,6 +236,9 @@ export default function App() {
       if (errMsg.includes('404') || errMsg.includes('belum aktif') || errMsg.includes('belum tersedia')) {
         setGalat('Mode Lokal aktif (Layanan backend Google Sheets belum aktif di hosting ini).');
         setGoogleConnected(false);
+      } else if (errMsg.includes('credentials tidak ditemukan')) {
+        setGalat('Service Account belum disetel di Vercel (tambahkan variabel GOOGLE_SERVICE_ACCOUNT_KEY di Project Settings). Menampilkan data lokal.');
+        setGoogleConnected(false);
       } else {
         setGalat('Gagal membaca Google Sheets: ' + errMsg + ' (menampilkan data lokal).');
         setGoogleConnected(modeGoogle());
