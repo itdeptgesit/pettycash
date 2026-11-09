@@ -8,20 +8,26 @@ Proyek ini telah **disatukan secara utuh** (*unified*) sehingga tidak ada lagi p
 
 ## Fitur Utama
 
-1. **Buku Kas PA Direksi**:
+1. **Dashboard Eksekutif**:
+   - 4 Kartu KPI Utama: Sisa Kas Tersedia, Total Kas Masuk (*Cash In*), Total Kas Keluar (*Cash Out*), dan Beban Keluarga Direksi.
+   - Analitik Utilisasi Anggaran & Arus Kas dalam visual progress meter dua warna.
+   - Grafik Distribusi Pengeluaran per Sumber Dana (`SIRCON G71`, `JSB`, `Ibu`, `W Acct`, `CELES`).
+   - Feed transaksi terkini kas operasional dan catatan beban keluarga dengan tombol pintas detail.
+2. **Buku Kas PA Direksi**:
    - Pencatatan transaksi masuk (`Cash In`) dan keluar (`Cash Out`).
    - Sumber dana dinamis (`JSB`, `SIRCON G71`, `Ibu`, `W Acct`, `CELES`).
    - Unggah bukti nota/kuitansi langsung ke Google Drive dan tercatat dengan formula `=HYPERLINK()` di Google Sheets.
    - Edit transaksi & hapus transaksi (otomatis memindahkan berkas bukti lama ke tempat sampah Drive).
    - Cetak laporan buku kas resmi format A4 Landscape & Cetak Lampiran Bukti Transfer (grid 8 bukti per lembar).
    - OCR otomatis di peramban (Tesseract.js) untuk membaca nominal dan tanggal nota.
-2. **Saldo Awal & Override Bulanan**:
+3. **Saldo Awal & Override Bulanan**:
    - Pengaturan saldo pembuka global di tab `Pengaturan`.
    - Override saldo awal per bulan (`saldo_awal_YYYY-MM`) untuk siklus kas mandiri.
-3. **Pengeluaran Keluarga Direksi**:
+4. **Pengeluaran Keluarga Direksi**:
    - Tab terpisah untuk pencatatan satu arah biaya keluarga (sekolah, PBB, asuransi, dll.).
-   - Tersimpan di tab `Keluarga` pada spreadsheet yang sama dengan bukti transfer ke Drive.
-4. **Keamanan & Autentikasi**:
+   - Tabel responsif sesuai format laporan asli Google Sheet dengan kalkulasi otomatis total Rp 271.011.340.
+   - Pratinjau gambar bukti transfer dengan modal lightbox resolusi penuh.
+5. **Keamanan & Autentikasi**:
    - Dilindungi kata sandi (`APP_PASSWORD`) dengan sesi login cookie HMAC SHA-256 berlaku 30 hari.
    - Vercel Edge Middleware (`middleware.js`) memproteksi seluruh rute web dan API.
 
