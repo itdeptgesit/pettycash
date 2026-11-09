@@ -225,6 +225,14 @@ const IconTrendingDown = () => (
   </svg>
 );
 
+const IconMenu = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="3" y1="12" x2="21" y2="12" />
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <line x1="3" y1="18" x2="21" y2="18" />
+  </svg>
+);
+
 interface BarisHitung {
   tx: Tx;
   saldo: number;
@@ -244,6 +252,7 @@ export default function App() {
     setTema((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
+  const [sidebarBuka, setSidebarBuka] = useState(false);
   const [txs, setTxs] = useState<Tx[]>([]);
   const [memuat, setMemuat] = useState(true);
   const [galat, setGalat] = useState('');
@@ -704,173 +713,175 @@ export default function App() {
   });
 
   return (
-    <div className="wrap">
-      {/* HEADER CETAK RESMI BUKU KAS (A4 LANDSCAPE) */}
-      <div className="print-report-header">
-        <div className="print-report-top">
-          <div className="print-report-title-block">
-            <div className="print-report-org">The Gesit Companies · Executive Desk</div>
-            <h1 className="print-report-title">Buku Kas Petty Cash Direksi</h1>
-            <div className="print-report-sub">
-              Periode: <b>{bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'Semua Periode'}</b> · Basis Kas Riil
+    <div className="app-layout">
+      {/* SIDEBAR NAVIGATION */}
+      <aside className={'app-sidebar no-print' + (sidebarBuka ? ' open' : '')}>
+        <div className="sidebar-header">
+          <div className="sidebar-brand">
+            <div className="sidebar-emblem">TG</div>
+            <div className="sidebar-brand-text">
+              <div className="sidebar-brand-corp">The Gesit Companies</div>
+              <div className="sidebar-brand-title">Petty Cash Direksi</div>
             </div>
           </div>
-          <div className="print-report-meta-block">
-            <div>Pengelola: <b>Personal Assistant (PA) Direksi</b></div>
-            <div>Mata Uang: <b>IDR (Rupiah)</b></div>
-            <div>Tanggal Cetak: <b>{tglIndo(new Date().toISOString().slice(0, 10))}</b></div>
-          </div>
-        </div>
-      </div>
-
-      {/* HEADER CETAK LAMPIRAN BUKTI (HANYA TAMPIL SAAT CETAK LAMPIRAN BUKTI) */}
-      <div className="print-proofs-header">
-        <h2>Lampiran Bukti Pengeluaran Kas Operasional Direksi (PA Receipts)</h2>
-        <div className="print-proofs-meta">
-          <span>Periode: {formatBulanTahun(bulanAktif)}</span>
-          <span>Dicetak: {tglIndo(new Date().toISOString().slice(0, 10))}</span>
-          <span>Format: A4 Landscape (8 Bukti per Lembar) · Total: {daftarBukti.length} Bukti Transfer</span>
-        </div>
-      </div>
-
-      {/* HEADER UTAMA */}
-      <header className="top">
-        <div className="brand-area">
-          <div className="breadcrumb-tag">The Gesit Companies · Executive Desk</div>
-          <div className="title-row">
-            <h1>Petty Cash Direksi</h1>
-            <span
-              className={'badge ' + (googleConnected ? 'live' : 'demo')}
-              onClick={() => setPengaturan(true)}
-              style={{ cursor: 'pointer' }}
-              title="Integrasi Google Sheets & Drive API (Klik untuk Pengaturan)"
-            >
-              <span className="badge-dot" />
+          <button
+            type="button"
+            className="sidebar-status-chip"
+            onClick={() => setPengaturan(true)}
+            title="Integrasi Google Sheets & Drive API (Klik untuk Pengaturan)"
+          >
+            <span className={'badge-dot' + (googleConnected ? ' live' : '')} />
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {googleConnected ? 'Google Sheets Aktif' : 'Mode Lokal (Tersimpan)'}
             </span>
+          </button>
+        </div>
+
+        <div className="sidebar-nav-scroll">
+          {/* Kelompok Aksi Cepat */}
+          <div className="sidebar-actions-group">
+            <button
+              className="btn primary"
+              style={{ width: '100%', justifyContent: 'center' }}
+              onClick={() => {
+                setModalTransaksi({ buka: true, jenisAwal: 'out' });
+                setSidebarBuka(false);
+              }}
+              title="Catat pengeluaran operasional baru"
+            >
+              <IconPlus />
+              <span>Catat Pengeluaran</span>
+            </button>
+            <button
+              className="btn outline-success"
+              style={{ width: '100%', justifyContent: 'center' }}
+              onClick={() => {
+                setModalTransaksi({ buka: true, jenisAwal: 'in' });
+                setSidebarBuka(false);
+              }}
+              title="Tambah pengisian saldo kas"
+            >
+              <IconArrowDown />
+              <span>+ Isi Kas</span>
+            </button>
           </div>
-          <div className="sub">
-            Buku kas pengeluaran operasional Direksi &amp; arsip verifikasi bukti transfer
+
+          <div>
+            <div className="sidebar-section-label">Menu Utama</div>
+            <div className="sidebar-menu">
+              <button
+                type="button"
+                className={'sidebar-item' + (tabAktif === 'dashboard' ? ' active' : '')}
+                onClick={() => {
+                  setTabAktif('dashboard');
+                  setSidebarBuka(false);
+                }}
+              >
+                <div className="sidebar-item-left">
+                  <IconDashboard />
+                  <span>Dashboard</span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className={'sidebar-item' + (tabAktif === 'kas' ? ' active' : '')}
+                onClick={() => {
+                  setTabAktif('kas');
+                  setSidebarBuka(false);
+                }}
+              >
+                <div className="sidebar-item-left">
+                  <IconBookOpen />
+                  <span>Buku Kas</span>
+                </div>
+                <span className="sidebar-badge">{baris.length}</span>
+              </button>
+
+              <button
+                type="button"
+                className={'sidebar-item' + (tabAktif === 'keluarga' ? ' active' : '')}
+                onClick={() => {
+                  setTabAktif('keluarga');
+                  setSidebarBuka(false);
+                }}
+              >
+                <div className="sidebar-item-left">
+                  <IconUsers />
+                  <span>Keluarga Direksi</span>
+                </div>
+                <span className="sidebar-badge">{keluargaList.length}</span>
+              </button>
+            </div>
           </div>
-          <div style={{ marginTop: 12 }}>
-            <nav className="dash-nav-tabs no-print" aria-label="Navigasi Utama">
+
+          <div>
+            <div className="sidebar-section-label">Laporan &amp; Cetak</div>
+            <div className="sidebar-menu">
               <button
                 type="button"
-                className={'dash-nav-tab' + (tabAktif === 'dashboard' ? ' active' : '')}
-                onClick={() => setTabAktif('dashboard')}
+                className="sidebar-item"
+                onClick={() => {
+                  setSidebarBuka(false);
+                  cetakLaporan();
+                }}
+                title="Cetak Buku Kas Lengkap (Format A4 Landscape)"
               >
-                <IconDashboard />
-                <span>Dashboard</span>
+                <div className="sidebar-item-left">
+                  <IconPrinter />
+                  <span>Cetak Buku Kas A4</span>
+                </div>
               </button>
+
               <button
                 type="button"
-                className={'dash-nav-tab' + (tabAktif === 'kas' ? ' active' : '')}
-                onClick={() => setTabAktif('kas')}
+                className="sidebar-item"
+                onClick={() => {
+                  setSidebarBuka(false);
+                  cetakLampiranBukti();
+                }}
+                title="Cetak Lampiran Bukti Transfer (A4 Landscape · 8 bukti per lembar)"
               >
-                <IconBookOpen />
-                <span>Buku Kas</span>
-                <span className="dash-tab-pill">{baris.length}</span>
+                <div className="sidebar-item-left">
+                  <IconGrid />
+                  <span>Cetak Bukti Transfer</span>
+                </div>
               </button>
+            </div>
+          </div>
+
+          <div>
+            <div className="sidebar-section-label">Konfigurasi</div>
+            <div className="sidebar-menu">
               <button
                 type="button"
-                className={'dash-nav-tab' + (tabAktif === 'keluarga' ? ' active' : '')}
-                onClick={() => setTabAktif('keluarga')}
+                className="sidebar-item"
+                onClick={() => {
+                  setSidebarBuka(false);
+                  setPengaturan(true);
+                }}
+                title="Pengaturan Integrasi & Saldo Awal"
               >
-                <IconUsers />
-                <span>Keluarga Direksi</span>
-                <span className="dash-tab-pill">{keluargaList.length}</span>
+                <div className="sidebar-item-left">
+                  <IconSettings />
+                  <span>Pengaturan &amp; Saldo</span>
+                </div>
               </button>
-            </nav>
+            </div>
           </div>
         </div>
 
-        <div className="header-toolbar">
-          {(tabAktif === 'dashboard' || tabAktif === 'kas') && (
-            <>
-              {/* Kelompok Transaksi Utama */}
-              <div className="toolbar-group primary-actions">
-                <button
-                  className="btn outline-success"
-                  onClick={() => setModalTransaksi({ buka: true, jenisAwal: 'in' })}
-                  title="Tambah pengisian saldo kas"
-                >
-                  <IconArrowDown />
-                  <span>+ Isi Kas</span>
-                </button>
-                <button
-                  className="btn primary"
-                  onClick={() => setModalTransaksi({ buka: true, jenisAwal: 'out' })}
-                  title="Catat pengeluaran operasional baru"
-                >
-                  <IconPlus />
-                  <span>Catat Pengeluaran</span>
-                </button>
-              </div>
-
-              <div className="toolbar-divider" />
-
-              {/* Kelompok Cetak Laporan */}
-              <div className="toolbar-group secondary-actions">
-                <button
-                  className="btn"
-                  onClick={cetakLaporan}
-                  title="Cetak Buku Kas Lengkap (Format A4 Landscape)"
-                >
-                  <IconPrinter />
-                  <span>Cetak Kas</span>
-                </button>
-                <button
-                  className="btn"
-                  onClick={cetakLampiranBukti}
-                  title="Cetak Lampiran Bukti Transfer (A4 Landscape · 8 bukti per lembar)"
-                >
-                  <IconGrid />
-                  <span>Cetak Bukti</span>
-                </button>
-              </div>
-            </>
-          )}
-
-          {tabAktif === 'keluarga' && (
-            <>
-              <div className="toolbar-group primary-actions">
-                <button
-                  className="btn primary"
-                  onClick={() => {
-                    const el = document.getElementById('form-catat-keluarga');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  title="Tambah catatan pengeluaran keluarga baru"
-                >
-                  <IconPlus />
-                  <span>+ Catat Pengeluaran</span>
-                </button>
-              </div>
-
-              <div className="toolbar-divider" />
-
-              <div className="toolbar-group secondary-actions">
-                <button
-                  className="btn"
-                  onClick={() => {
-                    setPagePrintStyle('@page { size: A4 portrait; margin: 10mm; }');
-                    window.print();
-                  }}
-                  title="Cetak Laporan Pengeluaran Keluarga (A4 Portrait)"
-                >
-                  <IconPrinter />
-                  <span>Cetak Laporan</span>
-                </button>
-              </div>
-            </>
-          )}
-
-          <div className="toolbar-group secondary-actions">
-            <button className="btn ghost icon-only" onClick={muat} title="Muat ulang data kas">
-              <IconRefresh />
-            </button>
+        <div className="sidebar-footer">
+          <div className="sidebar-user">
+            <div className="sidebar-user-avatar">PA</div>
+            <div style={{ minWidth: 0, overflow: 'hidden' }}>
+              <div className="sidebar-user-role" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>PA Direksi</div>
+              <div className="sidebar-user-sub" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>The Gesit Companies</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <button
-              className="btn ghost icon-only"
+              className="btn ghost icon-only sm"
               onClick={toggleTema}
               title={tema === 'dark' ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'}
               aria-label="Toggle Tema"
@@ -878,16 +889,115 @@ export default function App() {
               {tema === 'dark' ? <IconSun /> : <IconMoon />}
             </button>
             <a
-              className="btn ghost"
+              className="btn ghost icon-only sm"
               href="/logout"
               title="Keluar dan kunci aplikasi"
-              style={{ textDecoration: 'none' }}
+              style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
             >
-              <span>Keluar</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
             </a>
           </div>
         </div>
-      </header>
+      </aside>
+
+      {sidebarBuka && (
+        <div
+          className="sidebar-backdrop no-print"
+          onClick={() => setSidebarBuka(false)}
+        />
+      )}
+
+      {/* APP MAIN CONTENT */}
+      <div className="app-main">
+        {/* TOPBAR */}
+        <header className="app-topbar no-print">
+          <div className="app-topbar-left">
+            <button
+              type="button"
+              className="sidebar-toggle-btn"
+              onClick={() => setSidebarBuka(!sidebarBuka)}
+              title="Buka / Tutup Menu Navigasi"
+              aria-label="Toggle Menu"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+            <div className="app-breadcrumb">
+              <span className="no-mobile">The Gesit Companies</span>
+              <span className="no-mobile">/</span>
+              <span>Executive Desk</span>
+              <span>/</span>
+              <span className="app-breadcrumb-current">
+                {tabAktif === 'dashboard' ? 'Executive Dashboard' : tabAktif === 'kas' ? 'Buku Kas Operasional' : 'Pengeluaran Keluarga Direksi'}
+              </span>
+            </div>
+          </div>
+
+          <div className="app-topbar-right">
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '4px 10px',
+                borderRadius: 999,
+                background: 'var(--bg-subtle)',
+                border: '1px solid var(--border)',
+                fontSize: 12,
+                fontWeight: 600,
+              }}
+            >
+              <span style={{ color: 'var(--fg-muted)', fontWeight: 500 }}>Sisa Kas:</span>
+              <span style={{ color: sisa >= 0 ? '#10b981' : '#ef4444' }}>{angka(sisa)}</span>
+            </div>
+
+            <button
+              className="btn ghost icon-only sm"
+              onClick={muat}
+              title="Muat Ulang Data Kas"
+            >
+              <IconRefresh />
+            </button>
+          </div>
+        </header>
+
+        {/* HEADER CETAK RESMI BUKU KAS (A4 LANDSCAPE) */}
+        <div className="print-report-header">
+          <div className="print-report-top">
+            <div className="print-report-title-block">
+              <div className="print-report-org">The Gesit Companies · Executive Desk</div>
+              <h1 className="print-report-title">Buku Kas Petty Cash Direksi</h1>
+              <div className="print-report-sub">
+                Periode: <b>{bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'Semua Periode'}</b> · Basis Kas Riil
+              </div>
+            </div>
+            <div className="print-report-meta-block">
+              <div>Pengelola: <b>Personal Assistant (PA) Direksi</b></div>
+              <div>Mata Uang: <b>IDR (Rupiah)</b></div>
+              <div>Tanggal Cetak: <b>{tglIndo(new Date().toISOString().slice(0, 10))}</b></div>
+            </div>
+          </div>
+        </div>
+
+        {/* HEADER CETAK LAMPIRAN BUKTI (HANYA TAMPIL SAAT CETAK LAMPIRAN BUKTI) */}
+        <div className="print-proofs-header">
+          <h2>Lampiran Bukti Pengeluaran Kas Operasional Direksi (PA Receipts)</h2>
+          <div className="print-proofs-meta">
+            <span>Periode: {formatBulanTahun(bulanAktif)}</span>
+            <span>Dicetak: {tglIndo(new Date().toISOString().slice(0, 10))}</span>
+            <span>Format: A4 Landscape (8 Bukti per Lembar) · Total: {daftarBukti.length} Bukti Transfer</span>
+          </div>
+        </div>
+
+        {/* APP CONTENT CONTAINER */}
+        <div className="app-content">
 
       {/* TAB DASHBOARD EKSEKUTIF */}
       {tabAktif === 'dashboard' && (
@@ -1665,6 +1775,8 @@ export default function App() {
           onMuatUlang={() => muat()}
         />
       )}
+        </div>
+      </div>
 
       {/* POP-UP MODAL TRANSAKSI (PENGISIAN / PENGELUARAN) */}
       {modalTransaksi?.buka && (
