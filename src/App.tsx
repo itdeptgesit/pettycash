@@ -186,6 +186,45 @@ const IconCalendar = () => (
   </svg>
 );
 
+const IconDashboard = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="7" height="9" rx="1" />
+    <rect x="14" y="3" width="7" height="5" rx="1" />
+    <rect x="14" y="12" width="7" height="9" rx="1" />
+    <rect x="3" y="16" width="7" height="5" rx="1" />
+  </svg>
+);
+
+const IconBookOpen = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+  </svg>
+);
+
+const IconUsers = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+
+const IconTrendingUp = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+    <polyline points="17 6 23 6 23 12" />
+  </svg>
+);
+
+const IconTrendingDown = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+    <polyline points="17 18 23 18 23 12" />
+  </svg>
+);
+
 interface BarisHitung {
   tx: Tx;
   saldo: number;
@@ -225,9 +264,9 @@ export default function App() {
   const [mobileViewTab, setMobileViewTab] = useState<'card' | 'table'>('card');
   const [bulanAktif, setBulanAktif] = useState<string>(() => bulanIni());
 
-  // Saldo per bulan & Tab aktif ('kas' | 'keluarga')
+  // Saldo per bulan & Tab aktif ('dashboard' | 'kas' | 'keluarga')
   const [saldoPerBulan, setSaldoPerBulan] = useState<Record<string, number>>(() => loadSaldoBulanLocal());
-  const [tabAktif, setTabAktif] = useState<'kas' | 'keluarga'>('kas');
+  const [tabAktif, setTabAktif] = useState<'dashboard' | 'kas' | 'keluarga'>('dashboard');
   const [keluargaList, setKeluargaList] = useState<KeluargaItem[]>(() => loadKeluargaLocal());
 
   // Saldo awal buku kas — bisa disesuaikan sendiri dari Pengaturan.
@@ -713,26 +752,40 @@ export default function App() {
           <div className="sub">
             Buku kas pengeluaran operasional Direksi &amp; arsip verifikasi bukti transfer
           </div>
-          <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-            <button
-              type="button"
-              className={'btn sm' + (tabAktif === 'kas' ? ' primary' : '')}
-              onClick={() => setTabAktif('kas')}
-            >
-              Buku Kas
-            </button>
-            <button
-              type="button"
-              className={'btn sm' + (tabAktif === 'keluarga' ? ' primary' : '')}
-              onClick={() => setTabAktif('keluarga')}
-            >
-              Keluarga Direksi
-            </button>
+          <div style={{ marginTop: 12 }}>
+            <nav className="dash-nav-tabs no-print" aria-label="Navigasi Utama">
+              <button
+                type="button"
+                className={'dash-nav-tab' + (tabAktif === 'dashboard' ? ' active' : '')}
+                onClick={() => setTabAktif('dashboard')}
+              >
+                <IconDashboard />
+                <span>Dashboard</span>
+              </button>
+              <button
+                type="button"
+                className={'dash-nav-tab' + (tabAktif === 'kas' ? ' active' : '')}
+                onClick={() => setTabAktif('kas')}
+              >
+                <IconBookOpen />
+                <span>Buku Kas</span>
+                <span className="dash-tab-pill">{baris.length}</span>
+              </button>
+              <button
+                type="button"
+                className={'dash-nav-tab' + (tabAktif === 'keluarga' ? ' active' : '')}
+                onClick={() => setTabAktif('keluarga')}
+              >
+                <IconUsers />
+                <span>Keluarga Direksi</span>
+                <span className="dash-tab-pill">{keluargaList.length}</span>
+              </button>
+            </nav>
           </div>
         </div>
 
         <div className="header-toolbar">
-          {tabAktif === 'kas' && (
+          {(tabAktif === 'dashboard' || tabAktif === 'kas') && (
             <>
               {/* Kelompok Transaksi Utama */}
               <div className="toolbar-group primary-actions">
@@ -778,6 +831,40 @@ export default function App() {
             </>
           )}
 
+          {tabAktif === 'keluarga' && (
+            <>
+              <div className="toolbar-group primary-actions">
+                <button
+                  className="btn primary"
+                  onClick={() => {
+                    const el = document.getElementById('form-catat-keluarga');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  title="Tambah catatan pengeluaran keluarga baru"
+                >
+                  <IconPlus />
+                  <span>+ Catat Pengeluaran</span>
+                </button>
+              </div>
+
+              <div className="toolbar-divider" />
+
+              <div className="toolbar-group secondary-actions">
+                <button
+                  className="btn"
+                  onClick={() => {
+                    setPagePrintStyle('@page { size: A4 portrait; margin: 10mm; }');
+                    window.print();
+                  }}
+                  title="Cetak Laporan Pengeluaran Keluarga (A4 Portrait)"
+                >
+                  <IconPrinter />
+                  <span>Cetak Laporan</span>
+                </button>
+              </div>
+            </>
+          )}
+
           <div className="toolbar-group secondary-actions">
             <button className="btn ghost icon-only" onClick={muat} title="Muat ulang data kas">
               <IconRefresh />
@@ -801,6 +888,31 @@ export default function App() {
           </div>
         </div>
       </header>
+
+      {/* TAB DASHBOARD EKSEKUTIF */}
+      {tabAktif === 'dashboard' && (
+        <DashboardExecutive
+          sisa={sisa}
+          saldoAwalBulan={saldoAwalBulan}
+          totalIn={totalIn}
+          totalOut={totalOut}
+          baris={barisTersaring}
+          semuaBaris={baris}
+          keluargaList={keluargaList}
+          daftarBulan={daftarBulan}
+          bulanAktif={bulanAktif}
+          setBulanAktif={setBulanAktif}
+          formatBulanTahun={formatBulanTahun}
+          onIsiKas={() => setModalTransaksi({ buka: true, jenisAwal: 'in' })}
+          onCatatPengeluaran={() => setModalTransaksi({ buka: true, jenisAwal: 'out' })}
+          onBukaKas={() => setTabAktif('kas')}
+          onBukaKeluarga={() => setTabAktif('keluarga')}
+          onBukaPengaturan={() => setPengaturan(true)}
+          onCetak={cetakLaporan}
+          onLihatBukti={(tx) => setLihat(tx)}
+          googleConnected={googleConnected}
+        />
+      )}
 
       {tabAktif === 'kas' && (
         <>
@@ -2647,6 +2759,430 @@ function ModalPengaturan({
   );
 }
 
+// --- KOMPONEN DASHBOARD EKSEKUTIF ---
+function DashboardExecutive({
+  sisa,
+  saldoAwalBulan,
+  totalIn,
+  totalOut,
+  baris,
+  semuaBaris,
+  keluargaList,
+  daftarBulan,
+  bulanAktif,
+  setBulanAktif,
+  formatBulanTahun,
+  onIsiKas,
+  onCatatPengeluaran,
+  onBukaKas,
+  onBukaKeluarga,
+  onBukaPengaturan,
+  onCetak,
+  onLihatBukti,
+  googleConnected,
+}: {
+  sisa: number;
+  saldoAwalBulan: number;
+  totalIn: number;
+  totalOut: number;
+  baris: BarisHitung[];
+  semuaBaris: BarisHitung[];
+  keluargaList: KeluargaItem[];
+  daftarBulan: string[];
+  bulanAktif: string;
+  setBulanAktif: (m: string) => void;
+  formatBulanTahun: (ym: string) => string;
+  onIsiKas: () => void;
+  onCatatPengeluaran: () => void;
+  onBukaKas: () => void;
+  onBukaKeluarga: () => void;
+  onBukaPengaturan: () => void;
+  onCetak: () => void;
+  onLihatBukti: (tx: Tx) => void;
+  googleConnected: boolean;
+}) {
+  const totalKeluarga = keluargaList.reduce((acc, k) => acc + (Number(k.jumlah) || 0), 0);
+  const pengeluaranTx = baris.filter((b) => b.tx.jenis === 'out');
+  const pemasukanTx = baris.filter((b) => b.tx.jenis === 'in');
+
+  const totalTersedia = saldoAwalBulan + totalIn;
+  const utilisasiPersen = totalTersedia > 0 ? Math.min(100, Math.round((totalOut / totalTersedia) * 100)) : 0;
+  const sisaPersen = Math.max(0, 100 - utilisasiPersen);
+
+  const rataRataOut = pengeluaranTx.length > 0 ? Math.round(totalOut / pengeluaranTx.length) : 0;
+  const txTerbesar = pengeluaranTx.reduce(
+    (max, b) => (!max || b.tx.nominal > max.tx.nominal ? b : max),
+    null as BarisHitung | null
+  );
+
+  // Alokasi Sumber Dana
+  const alokasiSumber = SUMBER_DANA.map((sumber) => {
+    const total = pengeluaranTx
+      .filter((b) => b.tx.sumber === sumber)
+      .reduce((acc, b) => acc + b.tx.nominal, 0);
+    const persen = totalOut > 0 ? Math.round((total / totalOut) * 100) : 0;
+    return { sumber, total, persen };
+  }).sort((a, b) => b.total - a.total);
+
+  // 5 Transaksi Terkini
+  const txTerkini = [...baris].reverse().slice(0, 5);
+
+  // 4 Catatan Keluarga Terkini
+  const keluargaTerkini = [...keluargaList].slice(-4).reverse();
+
+  return (
+    <div style={{ width: '100%' }}>
+      {/* 1. HERO BANNER & SIKLUS PERIODE */}
+      <div className="dash-hero no-print">
+        <div className="dash-hero-title">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                padding: '2px 8px',
+                borderRadius: 4,
+                background: googleConnected ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.12)',
+                color: googleConnected ? 'var(--accent-in)' : 'var(--amber)',
+                border: `1px solid ${googleConnected ? 'var(--accent-in-border)' : 'var(--amber-border)'}`,
+              }}
+            >
+              {googleConnected ? 'Google Sheets Live' : 'Penyimpanan Lokal'}
+            </span>
+            <span style={{ fontSize: 12, color: 'var(--fg-muted)' }}>
+              Siklus Kas: <b>{bulanAktif === 'all' ? 'Semua Periode' : formatBulanTahun(bulanAktif)}</b>
+            </span>
+          </div>
+          <h2>Dashboard Eksekutif Petty Cash</h2>
+          <p>
+            Ringkasan posisi saldo kas operasional Direksi, perputaran dana, dan rekap beban keluarga.
+          </p>
+        </div>
+
+        <div className="dash-hero-actions">
+          <div className="period-quick-pills">
+            {daftarBulan.map((ym) => (
+              <button
+                key={ym}
+                className={`period-pill ${bulanAktif === ym ? 'active' : ''}`}
+                onClick={() => setBulanAktif(ym)}
+                title={`Pilih Periode ${formatBulanTahun(ym)}`}
+              >
+                {formatBulanTahun(ym)}
+              </button>
+            ))}
+            <button
+              className={`period-pill ${bulanAktif === 'all' ? 'active' : ''}`}
+              onClick={() => setBulanAktif('all')}
+              title="Tampilkan Seluruh Transaksi"
+            >
+              Semua Periode
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn outline-success sm" onClick={onIsiKas} title="Tambah Kas Masuk">
+              <IconArrowDown />
+              <span>+ Isi Kas</span>
+            </button>
+            <button className="btn primary sm" onClick={onCatatPengeluaran} title="Catat Pengeluaran Operasional">
+              <IconPlus />
+              <span>+ Catat Pengeluaran</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. KPI METRIC CARDS (4 KOLOM) */}
+      <div className="dash-kpi-grid">
+        {/* CARD 1: SISA KAS */}
+        <div className="dash-kpi-card dash-kpi-balance" onClick={onBukaKas} style={{ cursor: 'pointer' }} title="Klik untuk membuka Buku Kas">
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-label">Sisa Kas Tersedia</span>
+            <div className="dash-kpi-icon">
+              <IconWallet />
+            </div>
+          </div>
+          <div className="dash-kpi-val">{rp(sisa)}</div>
+          <div className="dash-kpi-sub">
+            <span>Saldo Awal: {rp(saldoAwalBulan)}</span>
+            <span style={{ color: '#2563eb', fontWeight: 600 }}>Detail Kas →</span>
+          </div>
+        </div>
+
+        {/* CARD 2: KAS MASUK */}
+        <div className="dash-kpi-card dash-kpi-inflow" onClick={onBukaKas} style={{ cursor: 'pointer' }} title="Klik untuk melihat pemasukan">
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-label">Total Kas Masuk</span>
+            <div className="dash-kpi-icon">
+              <IconTrendingUp />
+            </div>
+          </div>
+          <div className="dash-kpi-val">+{rp(totalIn)}</div>
+          <div className="dash-kpi-sub">
+            <span>{pemasukanTx.length} kali penambahan modal</span>
+            <span style={{ color: 'var(--accent-in)', fontWeight: 600 }}>Cash In</span>
+          </div>
+        </div>
+
+        {/* CARD 3: KAS KELUAR */}
+        <div className="dash-kpi-card dash-kpi-outflow" onClick={onBukaKas} style={{ cursor: 'pointer' }} title="Klik untuk melihat pengeluaran">
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-label">Total Kas Keluar</span>
+            <div className="dash-kpi-icon">
+              <IconTrendingDown />
+            </div>
+          </div>
+          <div className="dash-kpi-val">-{rp(totalOut)}</div>
+          <div className="dash-kpi-sub">
+            <span>{pengeluaranTx.length} transaksi operasional</span>
+            <span style={{ color: 'var(--accent-out)', fontWeight: 600 }}>Cash Out</span>
+          </div>
+        </div>
+
+        {/* CARD 4: BEBAN KELUARGA DIREKSI */}
+        <div className="dash-kpi-card dash-kpi-keluarga" onClick={onBukaKeluarga} style={{ cursor: 'pointer' }} title="Klik untuk membuka Rekap Keluarga Direksi">
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-label">Beban Keluarga Direksi</span>
+            <div className="dash-kpi-icon">
+              <IconUsers />
+            </div>
+          </div>
+          <div className="dash-kpi-val" style={{ color: '#8b5cf6' }}>{rp(totalKeluarga)}</div>
+          <div className="dash-kpi-sub">
+            <span>{keluargaList.length} pos (PBB, Sekolah, dll)</span>
+            <span style={{ color: '#8b5cf6', fontWeight: 600 }}>Lihat Rekap →</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. WIDGET ANALITIK (2 KOLOM) */}
+      <div className="dash-analytics-grid">
+        {/* WIDGET KIRI: RASIO ARUS KAS & UTILISASI */}
+        <div className="dash-panel">
+          <div className="dash-panel-h">
+            <div className="dash-panel-title">
+              <IconScale />
+              <span>Arus Kas & Rasio Penyerapan Anggaran</span>
+            </div>
+            <span style={{ fontSize: 12, color: 'var(--fg-muted)' }}>
+              Total Dana: <b>{rp(totalTersedia)}</b>
+            </span>
+          </div>
+
+          {/* Visual Meter */}
+          <div style={{ marginBottom: 6 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}>
+              <span style={{ color: 'var(--accent-out)', fontWeight: 600 }}>
+                Terpakai: {utilisasiPersen}% ({rp(totalOut)})
+              </span>
+              <span style={{ color: 'var(--accent-in)', fontWeight: 600 }}>
+                Tersisa: {sisaPersen}% ({rp(sisa)})
+              </span>
+            </div>
+            <div className="dash-flow-meter">
+              <div className="dash-flow-out" style={{ width: `${utilisasiPersen}%` }} title={`Kas Keluar: ${utilisasiPersen}%`} />
+              <div className="dash-flow-in" style={{ width: `${sisaPersen}%` }} title={`Sisa Kas: ${sisaPersen}%`} />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div className="dash-stat-row">
+              <span className="dash-stat-label">Rata-rata per Pengeluaran</span>
+              <span className="dash-stat-val">{rp(rataRataOut)}</span>
+            </div>
+            <div className="dash-stat-row">
+              <span className="dash-stat-label">Pengeluaran Terbesar Periode Ini</span>
+              <span className="dash-stat-val">
+                {txTerbesar ? `${rp(txTerbesar.tx.nominal)} (${txTerbesar.tx.deskripsi})` : '—'}
+              </span>
+            </div>
+            <div className="dash-stat-row">
+              <span className="dash-stat-label">Total Transaksi Periode Ini</span>
+              <span className="dash-stat-val">{baris.length} catatan</span>
+            </div>
+            <div className="dash-stat-row">
+              <span className="dash-stat-label">Integrasi Tab Sheet Google</span>
+              <span className="dash-stat-val" style={{ color: 'var(--accent-in)' }}>
+                Transaksi, Pengaturan, &amp; Keluarga
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* WIDGET KANAN: ALOKASI PENGELUARAN PER SUMBER DANA */}
+        <div className="dash-panel">
+          <div className="dash-panel-h">
+            <div className="dash-panel-title">
+              <IconWallet />
+              <span>Alokasi Kas Keluar per Sumber Dana</span>
+            </div>
+            <span style={{ fontSize: 12, color: 'var(--fg-muted)' }}>
+              {SUMBER_DANA.length} Sumber Terdaftar
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
+            {alokasiSumber.map((item) => (
+              <div className="dash-source-item" key={item.sumber}>
+                <div className="dash-source-header">
+                  <span className="dash-source-name">
+                    <span className="sumber-pill" style={{ fontSize: 11, padding: '2px 7px' }}>
+                      {item.sumber}
+                    </span>
+                    <span style={{ color: 'var(--fg-muted)', fontSize: 11 }}>{item.persen}%</span>
+                  </span>
+                  <span className="dash-source-amount">{rp(item.total)}</span>
+                </div>
+                <div className="dash-source-track">
+                  <div
+                    className="dash-source-fill"
+                    style={{
+                      width: `${item.persen}%`,
+                      background:
+                        item.sumber === 'SIRCON G71'
+                          ? '#2563eb'
+                          : item.sumber === 'JSB'
+                          ? '#7c3aed'
+                          : item.sumber === 'Ibu'
+                          ? '#db2777'
+                          : item.sumber === 'W Acct'
+                          ? '#ea580c'
+                          : '#059669',
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* 4. FEED AKTIVITAS TERKINI (2 KOLOM) */}
+      <div className="dash-analytics-grid">
+        {/* FEED 1: 5 TRANSAKSI KAS OPERASIONAL TERKINI */}
+        <div className="dash-panel">
+          <div className="dash-panel-h">
+            <div className="dash-panel-title">
+              <IconBookOpen />
+              <span>Transaksi Kas Operasional Terkini</span>
+            </div>
+            <button className="btn sm ghost" onClick={onBukaKas} style={{ fontSize: 12 }}>
+              Semua ({semuaBaris.length}) →
+            </button>
+          </div>
+
+          <div className="dash-activity-list">
+            {txTerkini.map((b) => (
+              <div
+                className="dash-activity-item"
+                key={b.tx.id}
+                onClick={() => b.tx.buktiUrl && onLihatBukti(b.tx)}
+                style={{ cursor: b.tx.buktiUrl ? 'pointer' : 'default' }}
+                title={b.tx.buktiUrl ? 'Klik untuk melihat bukti transaksi' : ''}
+              >
+                <div className="dash-activity-left">
+                  <div className={`dash-activity-icon ${b.tx.jenis}`}>
+                    {b.tx.jenis === 'in' ? <IconArrowDown /> : <IconArrowUp />}
+                  </div>
+                  <div className="dash-activity-info">
+                    <div className="dash-activity-desc">{b.tx.deskripsi}</div>
+                    <div className="dash-activity-date">
+                      <span>{tglIndo(b.tx.tanggal)}</span>
+                      {b.tx.sumber && <span className="sumber-pill">{b.tx.sumber}</span>}
+                      {b.tx.buktiUrl && (
+                        <span style={{ color: 'var(--accent-in)', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                          <IconPaperclip /> Bukti
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="dash-activity-right">
+                  <div className={`dash-activity-amount ${b.tx.jenis}`}>
+                    {b.tx.jenis === 'in' ? '+' : '-'}
+                    {rp(b.tx.nominal)}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--fg-muted)' }}>
+                    Sisa: {rp(b.saldo)}
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {txTerkini.length === 0 && (
+              <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--fg-muted)', fontSize: 13 }}>
+                Belum ada transaksi operasional pada periode ini.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* FEED 2: 4 POS PENGELUARAN KELUARGA TERKINI */}
+        <div className="dash-panel">
+          <div className="dash-panel-h">
+            <div className="dash-panel-title">
+              <IconUsers />
+              <span>Pengeluaran Keluarga Direksi Terkini</span>
+            </div>
+            <button className="btn sm ghost" onClick={onBukaKeluarga} style={{ fontSize: 12 }}>
+              Semua ({keluargaList.length}) →
+            </button>
+          </div>
+
+          <div className="dash-activity-list">
+            {keluargaTerkini.map((k, ki) => (
+              <div
+                className="dash-activity-item"
+                key={k.id || ki}
+                onClick={onBukaKeluarga}
+                style={{ cursor: 'pointer' }}
+                title="Buka Rekap Keluarga"
+              >
+                <div className="dash-activity-left">
+                  <div
+                    className="dash-activity-icon"
+                    style={{ background: 'rgba(139, 92, 246, 0.12)', color: '#8b5cf6' }}
+                  >
+                    #{k.no || ki + 1}
+                  </div>
+                  <div className="dash-activity-info">
+                    <div className="dash-activity-desc">{k.keterangan}</div>
+                    <div className="dash-activity-date">
+                      <span>{k.tanggalTampil || tglIndo(k.tanggal)}</span>
+                      {k.buktiUrl && (
+                        <span style={{ color: '#8b5cf6', display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                          <IconPaperclip /> Ada Bukti
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="dash-activity-right">
+                  <div className="dash-activity-amount" style={{ color: '#8b5cf6' }}>
+                    {rp(k.jumlah)}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--fg-muted)' }}>Beban Keluarga</div>
+                </div>
+              </div>
+            ))}
+
+            {keluargaTerkini.length === 0 && (
+              <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--fg-muted)', fontSize: 13 }}>
+                Belum ada catatan keluarga direksi.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // --- KOMPONEN PENGELUARAN KELUARGA DIREKSI ---
 function PengeluaranKeluarga({
   daftar,
@@ -2662,8 +3198,9 @@ function PengeluaranKeluarga({
   const [fileBukti, setFileBukti] = useState<File | null>(null);
   const [simpanBerjalan, setSimpanBerjalan] = useState(false);
   const [pesan, setPesan] = useState<{ ok: boolean; msg: string } | null>(null);
+  const [previewBukti, setPreviewBukti] = useState<{ url: string; judul: string } | null>(null);
 
-  const items = daftar || [];
+  const items = daftar && daftar.length > 0 ? daftar : loadKeluargaLocal();
   const itemsUrut = [...items].sort((a, b) =>
     a.tanggal < b.tanggal ? -1 : a.tanggal > b.tanggal ? 1 : a.dibuat - b.dibuat
   );
@@ -2698,7 +3235,7 @@ function PengeluaranKeluarga({
           );
         } else {
           const lokal = loadKeluargaLocal();
-          const idx = lokal.findIndex((it) => it.dibuat === editItem.dibuat);
+          const idx = lokal.findIndex((it) => it.dibuat === editItem.dibuat || it.id === editItem.id);
           if (idx >= 0) {
             lokal[idx] = {
               ...editItem,
@@ -2723,8 +3260,10 @@ function PengeluaranKeluarga({
           );
         } else {
           const lokal = loadKeluargaLocal();
+          const nextNo = lokal.length + 1;
           lokal.push({
             id: 'k' + Date.now(),
+            no: String(nextNo),
             tanggal,
             keterangan: keterangan.trim(),
             jumlah: jml,
@@ -2739,7 +3278,7 @@ function PengeluaranKeluarga({
       setJumlahStr('');
       setFileBukti(null);
       setEditItem(null);
-      setPesan({ ok: true, msg: 'Catatan tersimpan.' });
+      setPesan({ ok: true, msg: 'Catatan tersimpan dengan sukses.' });
       onMuatUlang();
     } catch (err: any) {
       setPesan({ ok: false, msg: 'Gagal menyimpan: ' + (err.message || err) });
@@ -2752,9 +3291,9 @@ function PengeluaranKeluarga({
     if (window.confirm(`Hapus catatan "${item.keterangan}" (${rp(item.jumlah)})?`)) {
       try {
         if (modeGoogle()) {
-          await deleteKeluargaGoogle(item.dibuat);
+          await deleteKeluargaGoogle(item.dibuat, item);
         } else {
-          const lokal = loadKeluargaLocal().filter((it) => it.dibuat !== item.dibuat);
+          const lokal = loadKeluargaLocal().filter((it) => it.dibuat !== item.dibuat && it.id !== item.id);
           saveKeluargaLocal(lokal);
         }
         onMuatUlang();
@@ -2765,159 +3304,261 @@ function PengeluaranKeluarga({
   };
 
   return (
-    <div style={{ width: '100%' }}>
+    <div style={{ width: '100%', maxWidth: '100%' }}>
+      {/* HEADER SECTION KELUARGA */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
-          gap: 10,
-          margin: '18px 0 6px',
+          gap: 12,
+          margin: '18px 0 10px',
         }}
       >
-        <h2 style={{ fontSize: 17 }}>Pengeluaran Keluarga Direksi</h2>
-        <div style={{ fontSize: 13 }}>
-          Total tercatat: <b>{rp(totalTercatat)}</b>
+        <div>
+          <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, letterSpacing: '-0.02em' }}>
+            Pengeluaran Keluarga Direksi
+          </h2>
+          <p
+            style={{
+              fontSize: 12.5,
+              color: 'var(--fg-muted)',
+              margin: '4px 0 0',
+              lineHeight: 1.5,
+            }}
+          >
+            Laporan pengeluaran keluarga direksi (Pajak PBB, sekolah, asuransi, operasional keluarga) · Tab Sheet:{' '}
+            <b>Keluarga</b>
+          </p>
+        </div>
+
+        <div
+          style={{
+            background: 'var(--bg-subtle)',
+            border: '1px solid var(--border)',
+            borderRadius: 8,
+            padding: '8px 16px',
+            textAlign: 'right',
+          }}
+        >
+          <div style={{ fontSize: 11, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Total Tercatat
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent, #2563eb)' }}>
+            {rp(totalTercatat)}
+          </div>
         </div>
       </div>
-      <p
-        style={{
-          fontSize: 12,
-          color: 'var(--fg-muted)',
-          marginBottom: 14,
-          lineHeight: 1.55,
-        }}
-      >
-        Pencatatan satu arah khusus pengeluaran keluarga direksi (sekolah, pajak, asuransi, dan sejenisnya).
-        Terpisah dari Buku Kas PA, tersimpan di tab Keluarga pada Google Sheet yang sama.
-      </p>
 
-      {daftar === null && (
-        <div style={{ fontSize: 12.5, color: 'var(--fg-muted)', marginBottom: 12 }}>
-          Memuat data keluarga dari server...
-        </div>
-      )}
-
+      {/* TABEL PENGELUARAN KELUARGA */}
       <div
         style={{
           overflowX: 'auto',
           border: '1px solid var(--border)',
           borderRadius: 8,
-          marginBottom: 16,
+          marginBottom: 20,
+          background: 'var(--bg)',
         }}
       >
         <table
           style={{
             width: '100%',
-            minWidth: 0,
+            minWidth: 700,
             tableLayout: 'fixed',
             borderCollapse: 'collapse',
             fontSize: 13,
           }}
         >
           <colgroup>
-            <col style={{ width: 40 }} />
-            <col style={{ width: 104 }} />
+            <col style={{ width: 44 }} />
+            <col style={{ width: 130 }} />
             <col />
-            <col style={{ width: 148 }} />
-            <col style={{ width: 176 }} />
+            <col style={{ width: 160 }} />
+            <col style={{ width: 180 }} />
             <col style={{ width: 110 }} />
           </colgroup>
           <thead>
-            <tr style={{ background: 'var(--bg-subtle)', textAlign: 'left' }}>
-              <th style={{ padding: '9px 10px', width: 40 }}>No</th>
-              <th style={{ padding: '9px 10px', width: 104 }}>Tanggal</th>
-              <th style={{ padding: '9px 10px' }}>Keterangan</th>
-              <th style={{ padding: '9px 10px', textAlign: 'right', width: 150 }}>Jumlah</th>
-              <th style={{ padding: '9px 10px', width: 176 }}>Bukti Transfer</th>
-              <th style={{ padding: '9px 10px', width: 110 }}>Aksi</th>
+            <tr style={{ background: 'var(--bg-subtle)', textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
+              <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: 600 }}>No</th>
+              <th style={{ padding: '10px 10px', fontWeight: 600 }}>Tanggal</th>
+              <th style={{ padding: '10px 10px', fontWeight: 600 }}>Keterangan</th>
+              <th style={{ padding: '10px 10px', textAlign: 'right', fontWeight: 600 }}>Jumlah</th>
+              <th style={{ padding: '10px 10px', fontWeight: 600 }}>Bukti Transfer</th>
+              <th className="no-print" style={{ padding: '10px 10px', textAlign: 'center', fontWeight: 600 }}>Aksi</th>
             </tr>
           </thead>
           <tbody>
-            {itemsUrut.map((q, qi) => (
-              <tr key={q.id || qi} style={{ borderTop: '1px solid var(--border)' }}>
-                <td style={{ padding: '8px 10px' }}>{qi + 1}</td>
-                <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>{tglIndo(q.tanggal)}</td>
-                <td style={{ padding: '8px 10px', wordBreak: 'break-word' }}>{q.keterangan}</td>
-                <td style={{ padding: '8px 10px', textAlign: 'right', fontWeight: 600 }}>
-                  {rp(q.jumlah)}
-                </td>
-                <td style={{ padding: '8px 10px' }}>
-                  {q.buktiUrl ? (
-                    <a href={q.buktiUrl} target="_blank" rel="noreferrer">
-                      {q.buktiNama || 'Lihat bukti'}
-                    </a>
-                  ) : (
-                    <span style={{ color: 'var(--fg-muted)' }}>Belum ada bukti</span>
-                  )}
-                </td>
-                <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>
-                  <button
-                    type="button"
-                    className="btn sm"
-                    onClick={() => {
-                      setEditItem(q);
-                      setTanggal(q.tanggal);
-                      setKeterangan(q.keterangan);
-                      setJumlahStr(String(q.jumlah));
-                      setFileBukti(null);
-                      setPesan(null);
-                    }}
-                  >
-                    Ubah
-                  </button>
-                  <button
-                    type="button"
-                    className="btn sm"
-                    style={{ color: '#d64545', marginLeft: 6 }}
-                    onClick={() => hapusKlik(q)}
-                  >
-                    Hapus
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {itemsUrut.map((q, qi) => {
+              const driveMatch = q.buktiUrl ? q.buktiUrl.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/) : null;
+              const driveThumbUrl = driveMatch ? `/api/drive-image/${driveMatch[1]}` : null;
+              const displayImgUrl = q.buktiUrl?.startsWith('data:') ? q.buktiUrl : driveThumbUrl;
+
+              return (
+                <tr
+                  key={q.id || qi}
+                  style={{
+                    borderTop: '1px solid var(--border)',
+                    transition: 'background 0.15s ease',
+                  }}
+                >
+                  <td style={{ padding: '10px 8px', textAlign: 'center', color: 'var(--fg-muted)' }}>
+                    {q.no || (qi + 1)}
+                  </td>
+                  <td style={{ padding: '10px 10px', whiteSpace: 'nowrap', fontWeight: 500 }}>
+                    {q.tanggalTampil || tglIndo(q.tanggal)}
+                  </td>
+                  <td style={{ padding: '10px 10px', wordBreak: 'break-word', lineHeight: 1.45 }}>
+                    {q.keterangan}
+                  </td>
+                  <td style={{ padding: '10px 10px', textAlign: 'right', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                    {rp(q.jumlah)}
+                  </td>
+                  <td style={{ padding: '10px 10px' }}>
+                    {q.buktiUrl ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {displayImgUrl && (
+                          <img
+                            src={displayImgUrl}
+                            alt="Bukti Transfer"
+                            onClick={() => setPreviewBukti({ url: displayImgUrl, judul: q.keterangan })}
+                            style={{
+                              width: 38,
+                              height: 38,
+                              objectFit: 'cover',
+                              borderRadius: 4,
+                              border: '1px solid var(--border)',
+                              cursor: 'pointer',
+                              flexShrink: 0,
+                            }}
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        )}
+                        <a
+                          href={q.buktiUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{
+                            fontSize: 12,
+                            color: 'var(--accent, #2563eb)',
+                            textDecoration: 'none',
+                            wordBreak: 'break-word',
+                          }}
+                          title="Klik untuk membuka dokumen bukti"
+                        >
+                          {q.buktiNama || 'Lihat Bukti'}
+                        </a>
+                      </div>
+                    ) : (
+                      <span style={{ color: 'var(--fg-muted)', fontSize: 12 }}>—</span>
+                    )}
+                  </td>
+                  <td className="no-print" style={{ padding: '10px 10px', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                    <button
+                      type="button"
+                      className="btn sm"
+                      onClick={() => {
+                        setEditItem(q);
+                        setTanggal(q.tanggal);
+                        setKeterangan(q.keterangan);
+                        setJumlahStr(String(q.jumlah));
+                        setFileBukti(null);
+                        setPesan(null);
+                        const el = document.getElementById('form-catat-keluarga');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      title="Ubah catatan ini"
+                    >
+                      Ubah
+                    </button>
+                    <button
+                      type="button"
+                      className="btn sm"
+                      style={{ color: '#d64545', marginLeft: 6 }}
+                      onClick={() => hapusKlik(q)}
+                      title="Hapus catatan ini"
+                    >
+                      Hapus
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
             {itemsUrut.length === 0 && (
               <tr>
                 <td
                   colSpan={6}
                   style={{
-                    padding: '16px 10px',
+                    padding: '28px 10px',
                     textAlign: 'center',
                     color: 'var(--fg-muted)',
                   }}
                 >
-                  Belum ada catatan. Tambahkan lewat formulir di bawah.
+                  Belum ada catatan pengeluaran keluarga. Tambahkan lewat formulir di bawah.
                 </td>
               </tr>
             )}
           </tbody>
+          {itemsUrut.length > 0 && (
+            <tfoot>
+              <tr style={{ background: 'var(--bg-subtle)', fontWeight: 700, borderTop: '2px solid var(--border)' }}>
+                <td colSpan={3} style={{ padding: '10px 10px', textAlign: 'right' }}>
+                  Total Pengeluaran:
+                </td>
+                <td style={{ padding: '10px 10px', textAlign: 'right', fontSize: 14, color: 'var(--accent, #2563eb)' }}>
+                  {rp(totalTercatat)}
+                </td>
+                <td colSpan={2} style={{ padding: '10px 10px' }}></td>
+              </tr>
+            </tfoot>
+          )}
         </table>
       </div>
 
-      <div style={{ border: '1px solid var(--border)', borderRadius: 8, padding: 14 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 10 }}>
-          {editItem ? 'Ubah Catatan' : 'Tambah Catatan'}
+      {/* FORMULIR CATAT / UBAH PENGELUARAN KELUARGA */}
+      <div
+        id="form-catat-keluarga"
+        className="no-print"
+        style={{
+          border: '1px solid var(--border)',
+          borderRadius: 8,
+          padding: 16,
+          background: 'var(--bg)',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div style={{ fontSize: 14, fontWeight: 700 }}>
+            {editItem ? `Ubah Catatan: ${editItem.keterangan}` : 'Tambah Catatan Pengeluaran Keluarga'}
+          </div>
+          {editItem && (
+            <span style={{ fontSize: 11, background: 'var(--accent, #2563eb)', color: '#fff', padding: '2px 8px', borderRadius: 4 }}>
+              Mode Ubah
+            </span>
+          )}
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '150px 1fr', gap: 12 }}>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 12 }}>
           <div className="field">
             <label>Tanggal</label>
             <input type="date" value={tanggal} onChange={(e) => setTanggal(e.target.value)} />
           </div>
           <div className="field">
-            <label>Keterangan</label>
+            <label>Keterangan / Uraian</label>
             <input
               type="text"
               value={keterangan}
               onChange={(e) => setKeterangan(e.target.value)}
-              placeholder="cth. SPP sekolah / PBB / asuransi"
+              placeholder="cth. Sinar Bangsa PBB / Elshaddai Design TK Transfer / Asuransi"
             />
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 4 }}>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 10 }}>
           <div className="field">
-            <label>Jumlah (Rupiah)</label>
+            <label>Jumlah Nominal (Rupiah)</label>
             <input
               type="text"
               inputMode="numeric"
@@ -2927,27 +3568,28 @@ function PengeluaranKeluarga({
             />
           </div>
           <div className="field">
-            <label>Bukti Transfer (gambar)</label>
+            <label>Unggah Bukti Transfer / Nota (gambar)</label>
             <input
               type="file"
               accept="image/*"
               onChange={(e) => setFileBukti(e.target.files && e.target.files[0] ? e.target.files[0] : null)}
             />
             {editItem && editItem.buktiNama && (
-              <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 6 }}>
-                Bukti saat ini: {editItem.buktiNama}
+              <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 4 }}>
+                Bukti saat ini: <b>{editItem.buktiNama}</b>
               </div>
             )}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+
+        <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
           <button
             type="button"
             className="btn primary sm"
             onClick={simpanKlik}
             disabled={simpanBerjalan}
           >
-            {simpanBerjalan ? 'Menyimpan...' : editItem ? 'Simpan Perubahan' : 'Tambah Catatan'}
+            {simpanBerjalan ? 'Menyimpan ke Sheet...' : editItem ? 'Simpan Perubahan' : '+ Tambah Catatan'}
           </button>
           {editItem && (
             <button
@@ -2961,10 +3603,11 @@ function PengeluaranKeluarga({
                 setPesan(null);
               }}
             >
-              Batal
+              Batal Ubah
             </button>
           )}
         </div>
+
         {pesan && (
           <div
             style={{
@@ -2973,8 +3616,8 @@ function PengeluaranKeluarga({
               borderRadius: 6,
               marginTop: 12,
               border: pesan.ok ? '1px solid #86efac' : '1px solid #fca5a5',
-              background: pesan.ok ? '#f0fdf4' : '#fef2f2',
-              color: pesan.ok ? '#166534' : '#991b1b',
+              background: pesan.ok ? 'var(--bg-subtle)' : '#fef2f2',
+              color: pesan.ok ? 'var(--fg)' : '#991b1b',
               lineHeight: 1.4,
             }}
           >
@@ -2982,6 +3625,75 @@ function PengeluaranKeluarga({
           </div>
         )}
       </div>
+
+      {/* MODAL LIGHTBOX PREVIEW BUKTI */}
+      {previewBukti && (
+        <div
+          className="backdrop"
+          onClick={() => setPreviewBukti(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.65)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: 16,
+          }}
+        >
+          <div
+            className="modal"
+            style={{
+              background: 'var(--bg)',
+              borderRadius: 8,
+              maxWidth: 720,
+              width: '100%',
+              overflow: 'hidden',
+              boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '12px 16px',
+                borderBottom: '1px solid var(--border)',
+              }}
+            >
+              <h3 style={{ margin: 0, fontSize: 15 }}>{previewBukti.judul}</h3>
+              <button className="btn ghost sm" onClick={() => setPreviewBukti(null)}>
+                ✕
+              </button>
+            </div>
+            <div style={{ padding: 16, textAlign: 'center', maxHeight: '75vh', overflow: 'auto' }}>
+              <img
+                src={previewBukti.url}
+                alt={previewBukti.judul}
+                style={{ maxWidth: '100%', maxHeight: '65vh', objectFit: 'contain', borderRadius: 4 }}
+              />
+            </div>
+            <div
+              style={{
+                padding: '10px 16px',
+                borderTop: '1px solid var(--border)',
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: 8,
+              }}
+            >
+              <a href={previewBukti.url} target="_blank" rel="noreferrer" className="btn sm">
+                Buka Resolusi Penuh
+              </a>
+              <button className="btn sm primary" onClick={() => setPreviewBukti(null)}>
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
