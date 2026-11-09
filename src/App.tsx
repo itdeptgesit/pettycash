@@ -262,6 +262,9 @@ export default function App() {
   // Modal Transaksi State (Pengisian / Pengeluaran)
   const [modalTransaksi, setModalTransaksi] = useState<{ buka: boolean; jenisAwal: 'out' | 'in'; txEdit?: Tx } | null>(null);
 
+  // Modal Pengeluaran Keluarga State
+  const [modalKeluarga, setModalKeluarga] = useState<{ buka: boolean; itemEdit?: KeluargaItem | null } | null>(null);
+
   // Modal Cetak Bukti (Voucher Kas)
   const [txCetak, setTxCetak] = useState<Tx | null>(null);
 
@@ -744,26 +747,32 @@ export default function App() {
               className="btn primary"
               style={{ width: '100%', justifyContent: 'center' }}
               onClick={() => {
-                setModalTransaksi({ buka: true, jenisAwal: 'out' });
+                if (tabAktif === 'keluarga') {
+                  setModalKeluarga({ buka: true, itemEdit: null });
+                } else {
+                  setModalTransaksi({ buka: true, jenisAwal: 'out' });
+                }
                 setSidebarBuka(false);
               }}
-              title="Catat pengeluaran operasional baru"
+              title={tabAktif === 'keluarga' ? 'Catat pengeluaran keluarga baru' : 'Catat pengeluaran operasional baru'}
             >
               <IconPlus />
               <span>Catat Pengeluaran</span>
             </button>
-            <button
-              className="btn outline-success"
-              style={{ width: '100%', justifyContent: 'center' }}
-              onClick={() => {
-                setModalTransaksi({ buka: true, jenisAwal: 'in' });
-                setSidebarBuka(false);
-              }}
-              title="Tambah pengisian saldo kas"
-            >
-              <IconArrowDown />
-              <span>+ Isi Kas</span>
-            </button>
+            {tabAktif !== 'keluarga' && (
+              <button
+                className="btn outline-success"
+                style={{ width: '100%', justifyContent: 'center' }}
+                onClick={() => {
+                  setModalTransaksi({ buka: true, jenisAwal: 'in' });
+                  setSidebarBuka(false);
+                }}
+                title="Tambah pengisian saldo kas"
+              >
+                <IconArrowDown />
+                <span>+ Isi Kas</span>
+              </button>
+            )}
           </div>
 
           <div>
@@ -941,22 +950,34 @@ export default function App() {
           </div>
 
           <div className="app-topbar-right">
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '4px 10px',
-                borderRadius: 999,
-                background: 'var(--bg-subtle)',
-                border: '1px solid var(--border)',
-                fontSize: 12,
-                fontWeight: 600,
-              }}
-            >
-              <span style={{ color: 'var(--fg-muted)', fontWeight: 500 }}>Sisa Kas:</span>
-              <span style={{ color: sisa >= 0 ? '#10b981' : '#ef4444' }}>{angka(sisa)}</span>
-            </div>
+            {tabAktif === 'keluarga' ? (
+              <button
+                type="button"
+                className="btn primary sm"
+                onClick={() => setModalKeluarga({ buka: true, itemEdit: null })}
+                title="Tambah catatan pengeluaran keluarga baru"
+              >
+                <IconPlus />
+                <span>+ Catat Pengeluaran</span>
+              </button>
+            ) : (
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '4px 10px',
+                  borderRadius: 999,
+                  background: 'var(--bg-subtle)',
+                  border: '1px solid var(--border)',
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
+                <span style={{ color: 'var(--fg-muted)', fontWeight: 500 }}>Sisa Kas:</span>
+                <span style={{ color: sisa >= 0 ? '#10b981' : '#ef4444' }}>{angka(sisa)}</span>
+              </div>
+            )}
 
             <button
               className="btn ghost icon-only sm"
@@ -1773,6 +1794,8 @@ export default function App() {
         <PengeluaranKeluarga
           daftar={keluargaList}
           onMuatUlang={() => muat()}
+          onBukaCatat={() => setModalKeluarga({ buka: true, itemEdit: null })}
+          onUbah={(item) => setModalKeluarga({ buka: true, itemEdit: item })}
         />
       )}
         </div>
@@ -1786,6 +1809,18 @@ export default function App() {
           daftarSumber={kolomSumber}
           onTutup={() => setModalTransaksi(null)}
           onSimpan={modalTransaksi.txEdit ? ubah : tambah}
+        />
+      )}
+
+      {/* POP-UP MODAL PENGELUARAN KELUARGA DIREKSI */}
+      {modalKeluarga?.buka && (
+        <ModalKeluarga
+          itemEdit={modalKeluarga.itemEdit || null}
+          onTutup={() => setModalKeluarga(null)}
+          onSelesai={() => {
+            setModalKeluarga(null);
+            muat();
+          }}
         />
       )}
 
@@ -3295,67 +3330,98 @@ function DashboardExecutive({
   );
 }
 
-// --- KOMPONEN PENGELUARAN KELUARGA DIREKSI ---
-function PengeluaranKeluarga({
-  daftar,
-  onMuatUlang,
+// --- POP-UP MODAL PENGELUARAN KELUARGA DIREKSI ---
+function ModalKeluarga({
+  itemEdit,
+  onTutup,
+  onSelesai,
 }: {
-  daftar: KeluargaItem[] | null;
-  onMuatUlang: () => void;
+  itemEdit: KeluargaItem | null;
+  onTutup: () => void;
+  onSelesai: () => void;
 }) {
-  const [editItem, setEditItem] = useState<KeluargaItem | null>(null);
-  const [tanggal, setTanggal] = useState<string>(new Date().toISOString().slice(0, 10));
-  const [keterangan, setKeterangan] = useState<string>('');
-  const [jumlahStr, setJumlahStr] = useState<string>('');
+  const [tanggal, setTanggal] = useState(itemEdit ? itemEdit.tanggal : new Date().toISOString().slice(0, 10));
+  const [keterangan, setKeterangan] = useState(itemEdit ? itemEdit.keterangan : '');
+  const [jumlahStr, setJumlahStr] = useState(itemEdit ? String(itemEdit.jumlah) : '');
   const [fileBukti, setFileBukti] = useState<File | null>(null);
+  const [previewBuktiBaru, setPreviewBuktiBaru] = useState<string | null>(null);
   const [simpanBerjalan, setSimpanBerjalan] = useState(false);
   const [pesan, setPesan] = useState<{ ok: boolean; msg: string } | null>(null);
-  const [previewBukti, setPreviewBukti] = useState<{ url: string; judul: string } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
-  const items = daftar && daftar.length > 0 ? daftar : loadKeluargaLocal();
-  const itemsUrut = [...items].sort((a, b) =>
-    a.tanggal < b.tanggal ? -1 : a.tanggal > b.tanggal ? 1 : a.dibuat - b.dibuat
-  );
-  const totalTercatat = itemsUrut.reduce((acc, it) => acc + (Number(it.jumlah) || 0), 0);
+  const berkasRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !simpanBerjalan) onTutup();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onTutup, simpanBerjalan]);
+
+  const parsedJumlah = jumlahStr ? parseInt(jumlahStr.replace(/[^0-9]/g, ''), 10) : 0;
+
+  const pilihBerkas = (f: File | undefined) => {
+    if (!f) return;
+    setFileBukti(f);
+    if (f.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPreviewBuktiBaru(reader.result as string);
+      };
+      reader.readAsDataURL(f);
+    } else {
+      setPreviewBuktiBaru(null);
+    }
+  };
+
+  const hapusBerkas = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFileBukti(null);
+    setPreviewBuktiBaru(null);
+    if (berkasRef.current) berkasRef.current.value = '';
+  };
 
   const simpanKlik = async () => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(tanggal) || !keterangan.trim()) {
-      setPesan({ ok: false, msg: 'Tanggal dan keterangan wajib diisi.' });
+      setPesan({ ok: false, msg: 'Tanggal dan keterangan pengeluaran wajib diisi.' });
       return;
     }
-    const jml = parseInt(jumlahStr.replace(/[^0-9]/g, ''), 10);
-    if (!Number.isFinite(jml) || jml <= 0) {
-      setPesan({ ok: false, msg: 'Jumlah harus lebih dari 0.' });
+    if (!parsedJumlah || parsedJumlah <= 0) {
+      setPesan({ ok: false, msg: 'Jumlah nominal harus lebih dari 0.' });
       return;
     }
+
     setSimpanBerjalan(true);
+    setPesan(null);
     try {
       let buktiData: BuktiFile | null = null;
       if (fileBukti) {
         buktiData = await prosesBerkas(fileBukti);
       }
-      if (editItem) {
+
+      if (itemEdit) {
         if (modeGoogle()) {
           await updateKeluargaGoogle(
             {
-              ...editItem,
+              ...itemEdit,
               tanggal,
               keterangan: keterangan.trim(),
-              jumlah: jml,
+              jumlah: parsedJumlah,
             },
             buktiData
           );
         } else {
           const lokal = loadKeluargaLocal();
-          const idx = lokal.findIndex((it) => it.dibuat === editItem.dibuat || it.id === editItem.id);
+          const idx = lokal.findIndex((it) => it.dibuat === itemEdit.dibuat || it.id === itemEdit.id);
           if (idx >= 0) {
             lokal[idx] = {
-              ...editItem,
+              ...itemEdit,
               tanggal,
               keterangan: keterangan.trim(),
-              jumlah: jml,
-              buktiNama: buktiData ? buktiData.nama : editItem.buktiNama,
-              buktiUrl: buktiData ? buktiData.dataUrl : editItem.buktiUrl,
+              jumlah: parsedJumlah,
+              buktiNama: buktiData ? buktiData.nama : itemEdit.buktiNama,
+              buktiUrl: buktiData ? buktiData.dataUrl : itemEdit.buktiUrl,
             };
             saveKeluargaLocal(lokal);
           }
@@ -3366,7 +3432,7 @@ function PengeluaranKeluarga({
             {
               tanggal,
               keterangan: keterangan.trim(),
-              jumlah: jml,
+              jumlah: parsedJumlah,
             },
             buktiData
           );
@@ -3378,7 +3444,7 @@ function PengeluaranKeluarga({
             no: String(nextNo),
             tanggal,
             keterangan: keterangan.trim(),
-            jumlah: jml,
+            jumlah: parsedJumlah,
             buktiNama: buktiData ? buktiData.nama : null,
             buktiUrl: buktiData ? buktiData.dataUrl : null,
             dibuat: Date.now(),
@@ -3386,18 +3452,202 @@ function PengeluaranKeluarga({
           saveKeluargaLocal(lokal);
         }
       }
-      setKeterangan('');
-      setJumlahStr('');
-      setFileBukti(null);
-      setEditItem(null);
-      setPesan({ ok: true, msg: 'Catatan tersimpan dengan sukses.' });
-      onMuatUlang();
+
+      onSelesai();
     } catch (err: any) {
       setPesan({ ok: false, msg: 'Gagal menyimpan: ' + (err.message || err) });
-    } finally {
       setSimpanBerjalan(false);
     }
   };
+
+  return (
+    <div
+      className="overlay"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !simpanBerjalan) onTutup();
+      }}
+    >
+      <div className="modal" style={{ maxWidth: 540, width: '100%' }}>
+        <div className="modal-h">
+          <div className="modal-h-title">
+            <b>{itemEdit ? 'Ubah Pengeluaran Keluarga' : 'Catat Pengeluaran Keluarga'}</b>
+            <span className="modal-sub">
+              Tersimpan langsung ke Google Sheets (Tab Sheet: <b>Keluarga</b>)
+            </span>
+          </div>
+          <button className="modal-close" onClick={onTutup} aria-label="Tutup" disabled={simpanBerjalan}>
+            <IconClose />
+          </button>
+        </div>
+
+        <div className="modal-body">
+          {pesan && (
+            <div
+              style={{
+                fontSize: 12.5,
+                padding: '10px 14px',
+                borderRadius: 6,
+                marginBottom: 14,
+                border: pesan.ok ? '1px solid #86efac' : '1px solid #fca5a5',
+                background: pesan.ok ? 'var(--bg-subtle)' : '#fef2f2',
+                color: pesan.ok ? 'var(--fg)' : '#991b1b',
+                lineHeight: 1.4,
+              }}
+            >
+              {pesan.msg}
+            </div>
+          )}
+
+          <div className="modal-field-row">
+            <div className="field">
+              <label>Tanggal Transaksi</label>
+              <input
+                type="date"
+                value={tanggal}
+                onChange={(e) => setTanggal(e.target.value)}
+                disabled={simpanBerjalan}
+              />
+            </div>
+
+            <div className="field">
+              <label>Jumlah Nominal (Rupiah)</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={jumlahStr ? angka(Number(jumlahStr.replace(/[^0-9]/g, '')) || 0) : ''}
+                onChange={(e) => setJumlahStr(e.target.value.replace(/[^0-9]/g, ''))}
+                placeholder="0"
+                disabled={simpanBerjalan}
+              />
+              {parsedJumlah > 0 && (
+                <div className="nominal-preview">
+                  Format: {rp(parsedJumlah)}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="field" style={{ marginTop: 12 }}>
+            <label>Keterangan / Uraian Transaksi</label>
+            <input
+              type="text"
+              value={keterangan}
+              onChange={(e) => setKeterangan(e.target.value)}
+              placeholder="Contoh: Sinar Bangsa PBB / Asuransi / SPP Sekolah"
+              disabled={simpanBerjalan}
+              autoFocus
+            />
+          </div>
+
+          <div className="field" style={{ marginTop: 12 }}>
+            <label>
+              <span>Bukti Transfer / Dokumen Pembayaran (Gambar)</span>
+              <span className="hint-text">Disimpan ke Google Drive</span>
+            </label>
+
+            {itemEdit && itemEdit.buktiNama && !fileBukti && (
+              <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 8 }}>
+                Bukti tersimpan saat ini: <b>{itemEdit.buktiNama}</b>. Unggah berkas baru bila ingin menggantinya.
+              </div>
+            )}
+
+            {!fileBukti ? (
+              <div
+                className={`drop ${isDragging ? 'is-dragging' : ''}`}
+                onClick={() => berkasRef.current?.click()}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                  pilihBerkas(e.dataTransfer.files?.[0]);
+                }}
+              >
+                <IconPaperclip />
+                <div>
+                  <b>Klik atau seret berkas bukti transfer ke sini</b>
+                </div>
+                <div className="types">Format gambar (JPG, PNG, JPEG) · Otomatis dikompres</div>
+              </div>
+            ) : (
+              <div className="file-preview-card">
+                <div className="file-info">
+                  {previewBuktiBaru ? (
+                    <img src={previewBuktiBaru} alt="Preview Bukti" className="file-thumb" />
+                  ) : (
+                    <div className="file-icon-wrap"><IconFile /></div>
+                  )}
+                  <div>
+                    <div className="file-name">{fileBukti.name}</div>
+                    <div className="file-size">{(fileBukti.size / 1024).toFixed(1)} KB</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="btn-remove-file"
+                  onClick={hapusBerkas}
+                  title="Hapus berkas ini"
+                >
+                  <IconClose />
+                </button>
+              </div>
+            )}
+
+            <input
+              ref={berkasRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={(e) => pilihBerkas(e.target.files?.[0])}
+            />
+          </div>
+        </div>
+
+        <div className="modal-foot">
+          <button
+            type="button"
+            className="btn"
+            onClick={onTutup}
+            disabled={simpanBerjalan}
+          >
+            Batal
+          </button>
+          <button
+            type="button"
+            className="btn primary"
+            onClick={simpanKlik}
+            disabled={simpanBerjalan}
+          >
+            {simpanBerjalan ? 'Menyimpan ke Sheet...' : itemEdit ? 'Simpan Perubahan' : '+ Simpan Catatan'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- KOMPONEN PENGELUARAN KELUARGA DIREKSI ---
+function PengeluaranKeluarga({
+  daftar,
+  onMuatUlang,
+  onBukaCatat,
+  onUbah,
+}: {
+  daftar: KeluargaItem[] | null;
+  onMuatUlang: () => void;
+  onBukaCatat: () => void;
+  onUbah: (item: KeluargaItem) => void;
+}) {
+  const [previewBukti, setPreviewBukti] = useState<{ url: string; judul: string } | null>(null);
+
+  const items = daftar && daftar.length > 0 ? daftar : loadKeluargaLocal();
+  const itemsUrut = [...items].sort((a, b) =>
+    a.tanggal < b.tanggal ? -1 : a.tanggal > b.tanggal ? 1 : a.dibuat - b.dibuat
+  );
+  const totalTercatat = itemsUrut.reduce((acc, it) => acc + (Number(it.jumlah) || 0), 0);
 
   const hapusKlik = async (item: KeluargaItem) => {
     if (window.confirm(`Hapus catatan "${item.keterangan}" (${rp(item.jumlah)})?`)) {
@@ -3425,7 +3675,7 @@ function PengeluaranKeluarga({
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: 12,
-          margin: '18px 0 10px',
+          margin: '18px 0 14px',
         }}
       >
         <div>
@@ -3445,20 +3695,32 @@ function PengeluaranKeluarga({
           </p>
         </div>
 
-        <div
-          style={{
-            background: 'var(--bg-subtle)',
-            border: '1px solid var(--border)',
-            borderRadius: 8,
-            padding: '8px 16px',
-            textAlign: 'right',
-          }}
-        >
-          <div style={{ fontSize: 11, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            Total Tercatat
-          </div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent, #2563eb)' }}>
-            {rp(totalTercatat)}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button
+            type="button"
+            className="btn primary"
+            onClick={onBukaCatat}
+            title="Catat pengeluaran keluarga baru (Pop-up Modal)"
+          >
+            <IconPlus />
+            <span>+ Catat Pengeluaran</span>
+          </button>
+
+          <div
+            style={{
+              background: 'var(--bg-subtle)',
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+              padding: '6px 14px',
+              textAlign: 'right',
+            }}
+          >
+            <div style={{ fontSize: 10.5, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Total Tercatat
+            </div>
+            <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--accent, #2563eb)' }}>
+              {rp(totalTercatat)}
+            </div>
           </div>
         </div>
       </div>
@@ -3571,16 +3833,7 @@ function PengeluaranKeluarga({
                     <button
                       type="button"
                       className="btn sm"
-                      onClick={() => {
-                        setEditItem(q);
-                        setTanggal(q.tanggal);
-                        setKeterangan(q.keterangan);
-                        setJumlahStr(String(q.jumlah));
-                        setFileBukti(null);
-                        setPesan(null);
-                        const el = document.getElementById('form-catat-keluarga');
-                        if (el) el.scrollIntoView({ behavior: 'smooth' });
-                      }}
+                      onClick={() => onUbah(q)}
                       title="Ubah catatan ini"
                     >
                       Ubah
@@ -3603,12 +3856,21 @@ function PengeluaranKeluarga({
                 <td
                   colSpan={6}
                   style={{
-                    padding: '28px 10px',
+                    padding: '36px 10px',
                     textAlign: 'center',
                     color: 'var(--fg-muted)',
                   }}
                 >
-                  Belum ada catatan pengeluaran keluarga. Tambahkan lewat formulir di bawah.
+                  <div>Belum ada catatan pengeluaran keluarga di Sheet.</div>
+                  <button
+                    type="button"
+                    className="btn primary sm"
+                    onClick={onBukaCatat}
+                    style={{ marginTop: 12 }}
+                  >
+                    <IconPlus />
+                    <span>Catat Pengeluaran Pertama</span>
+                  </button>
                 </td>
               </tr>
             )}
@@ -3627,115 +3889,6 @@ function PengeluaranKeluarga({
             </tfoot>
           )}
         </table>
-      </div>
-
-      {/* FORMULIR CATAT / UBAH PENGELUARAN KELUARGA */}
-      <div
-        id="form-catat-keluarga"
-        className="no-print"
-        style={{
-          border: '1px solid var(--border)',
-          borderRadius: 8,
-          padding: 16,
-          background: 'var(--bg)',
-          boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <div style={{ fontSize: 14, fontWeight: 700 }}>
-            {editItem ? `Ubah Catatan: ${editItem.keterangan}` : 'Tambah Catatan Pengeluaran Keluarga'}
-          </div>
-          {editItem && (
-            <span style={{ fontSize: 11, background: 'var(--accent, #2563eb)', color: '#fff', padding: '2px 8px', borderRadius: 4 }}>
-              Mode Ubah
-            </span>
-          )}
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 12 }}>
-          <div className="field">
-            <label>Tanggal</label>
-            <input type="date" value={tanggal} onChange={(e) => setTanggal(e.target.value)} />
-          </div>
-          <div className="field">
-            <label>Keterangan / Uraian</label>
-            <input
-              type="text"
-              value={keterangan}
-              onChange={(e) => setKeterangan(e.target.value)}
-              placeholder="cth. Sinar Bangsa PBB / Elshaddai Design TK Transfer / Asuransi"
-            />
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 10 }}>
-          <div className="field">
-            <label>Jumlah Nominal (Rupiah)</label>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={jumlahStr ? angka(Number(jumlahStr.replace(/[^0-9]/g, '')) || 0) : ''}
-              onChange={(e) => setJumlahStr(e.target.value.replace(/[^0-9]/g, ''))}
-              placeholder="0"
-            />
-          </div>
-          <div className="field">
-            <label>Unggah Bukti Transfer / Nota (gambar)</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setFileBukti(e.target.files && e.target.files[0] ? e.target.files[0] : null)}
-            />
-            {editItem && editItem.buktiNama && (
-              <div style={{ fontSize: 11.5, color: 'var(--fg-muted)', marginTop: 4 }}>
-                Bukti saat ini: <b>{editItem.buktiNama}</b>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
-          <button
-            type="button"
-            className="btn primary sm"
-            onClick={simpanKlik}
-            disabled={simpanBerjalan}
-          >
-            {simpanBerjalan ? 'Menyimpan ke Sheet...' : editItem ? 'Simpan Perubahan' : '+ Tambah Catatan'}
-          </button>
-          {editItem && (
-            <button
-              type="button"
-              className="btn sm"
-              onClick={() => {
-                setEditItem(null);
-                setKeterangan('');
-                setJumlahStr('');
-                setFileBukti(null);
-                setPesan(null);
-              }}
-            >
-              Batal Ubah
-            </button>
-          )}
-        </div>
-
-        {pesan && (
-          <div
-            style={{
-              fontSize: 12,
-              padding: '10px 14px',
-              borderRadius: 6,
-              marginTop: 12,
-              border: pesan.ok ? '1px solid #86efac' : '1px solid #fca5a5',
-              background: pesan.ok ? 'var(--bg-subtle)' : '#fef2f2',
-              color: pesan.ok ? 'var(--fg)' : '#991b1b',
-              lineHeight: 1.4,
-            }}
-          >
-            {pesan.msg}
-          </div>
-        )}
       </div>
 
       {/* MODAL LIGHTBOX PREVIEW BUKTI */}
