@@ -958,7 +958,7 @@ export default function App() {
                 title="Tambah catatan pengeluaran keluarga baru"
               >
                 <IconPlus />
-                <span>+ Catat Pengeluaran</span>
+                <span>Catat Pengeluaran</span>
               </button>
             ) : (
               <div
@@ -3641,6 +3641,7 @@ function PengeluaranKeluarga({
   onBukaCatat: () => void;
   onUbah: (item: KeluargaItem) => void;
 }) {
+  const [cari, setCari] = useState('');
   const [previewBukti, setPreviewBukti] = useState<{ url: string; judul: string } | null>(null);
 
   const items = daftar && daftar.length > 0 ? daftar : loadKeluargaLocal();
@@ -3648,6 +3649,16 @@ function PengeluaranKeluarga({
     a.tanggal < b.tanggal ? -1 : a.tanggal > b.tanggal ? 1 : a.dibuat - b.dibuat
   );
   const totalTercatat = itemsUrut.reduce((acc, it) => acc + (Number(it.jumlah) || 0), 0);
+
+  const itemsTersaring = itemsUrut.filter((it) => {
+    if (!cari.trim()) return true;
+    const q = cari.toLowerCase();
+    return (
+      it.keterangan.toLowerCase().includes(q) ||
+      String(it.tanggalTampil || it.tanggal).toLowerCase().includes(q) ||
+      String(it.jumlah).includes(q)
+    );
+  });
 
   const hapusKlik = async (item: KeluargaItem) => {
     if (window.confirm(`Hapus catatan "${item.keterangan}" (${rp(item.jumlah)})?`)) {
@@ -3674,24 +3685,24 @@ function PengeluaranKeluarga({
           alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
-          gap: 12,
-          margin: '18px 0 14px',
+          gap: 16,
+          marginBottom: 16,
         }}
       >
         <div>
-          <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0, letterSpacing: '-0.02em' }}>
+          <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, letterSpacing: '-0.02em', color: 'var(--fg)' }}>
             Pengeluaran Keluarga Direksi
           </h2>
           <p
             style={{
-              fontSize: 12.5,
+              fontSize: 13,
               color: 'var(--fg-muted)',
               margin: '4px 0 0',
               lineHeight: 1.5,
             }}
           >
             Laporan pengeluaran keluarga direksi (Pajak PBB, sekolah, asuransi, operasional keluarga) · Tab Sheet:{' '}
-            <b>Keluarga</b>
+            <b style={{ color: 'var(--fg)' }}>Keluarga</b>
           </p>
         </div>
 
@@ -3703,7 +3714,7 @@ function PengeluaranKeluarga({
             title="Catat pengeluaran keluarga baru (Pop-up Modal)"
           >
             <IconPlus />
-            <span>+ Catat Pengeluaran</span>
+            <span>Catat Pengeluaran</span>
           </button>
 
           <div
@@ -3711,184 +3722,259 @@ function PengeluaranKeluarga({
               background: 'var(--bg-subtle)',
               border: '1px solid var(--border)',
               borderRadius: 8,
-              padding: '6px 14px',
+              padding: '6px 16px',
               textAlign: 'right',
             }}
           >
-            <div style={{ fontSize: 10.5, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ fontSize: 10.5, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
               Total Tercatat
             </div>
-            <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--accent, #2563eb)' }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent, #2563eb)' }}>
               {rp(totalTercatat)}
             </div>
           </div>
         </div>
       </div>
 
-      {/* TABEL PENGELUARAN KELUARGA */}
-      <div
-        style={{
-          overflowX: 'auto',
-          border: '1px solid var(--border)',
-          borderRadius: 8,
-          marginBottom: 20,
-          background: 'var(--bg)',
-        }}
-      >
-        <table
+      {/* FULL TABLE CARD CONTAINER */}
+      <div className="keluarga-card-table">
+        {/* TOOLBAR FILTER & SEARCH */}
+        <div
           style={{
-            width: '100%',
-            minWidth: 700,
-            tableLayout: 'fixed',
-            borderCollapse: 'collapse',
-            fontSize: 13,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '12px 18px',
+            borderBottom: '1px solid var(--border)',
+            background: 'var(--bg-subtle)',
+            gap: 12,
+            flexWrap: 'wrap',
           }}
         >
-          <colgroup>
-            <col style={{ width: 44 }} />
-            <col style={{ width: 130 }} />
-            <col />
-            <col style={{ width: 160 }} />
-            <col style={{ width: 180 }} />
-            <col style={{ width: 110 }} />
-          </colgroup>
-          <thead>
-            <tr style={{ background: 'var(--bg-subtle)', textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
-              <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: 600 }}>No</th>
-              <th style={{ padding: '10px 10px', fontWeight: 600 }}>Tanggal</th>
-              <th style={{ padding: '10px 10px', fontWeight: 600 }}>Keterangan</th>
-              <th style={{ padding: '10px 10px', textAlign: 'right', fontWeight: 600 }}>Jumlah</th>
-              <th style={{ padding: '10px 10px', fontWeight: 600 }}>Bukti Transfer</th>
-              <th className="no-print" style={{ padding: '10px 10px', textAlign: 'center', fontWeight: 600 }}>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {itemsUrut.map((q, qi) => {
-              const driveMatch = q.buktiUrl ? q.buktiUrl.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/) : null;
-              const driveThumbUrl = driveMatch ? `/api/drive-image/${driveMatch[1]}` : null;
-              const displayImgUrl = q.buktiUrl?.startsWith('data:') ? q.buktiUrl : driveThumbUrl;
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 240, maxWidth: 420 }}>
+            <div className="search-box" style={{ width: '100%' }}>
+              <IconSearch />
+              <input
+                type="text"
+                placeholder="Cari transaksi pengeluaran keluarga..."
+                value={cari}
+                onChange={(e) => setCari(e.target.value)}
+                style={{ width: '100%', height: 34, fontSize: 12.5 }}
+              />
+            </div>
+            {cari && (
+              <button
+                type="button"
+                className="btn ghost sm"
+                onClick={() => setCari('')}
+                style={{ fontSize: 11, height: 32 }}
+              >
+                Reset
+              </button>
+            )}
+          </div>
 
-              return (
-                <tr
-                  key={q.id || qi}
-                  style={{
-                    borderTop: '1px solid var(--border)',
-                    transition: 'background 0.15s ease',
-                  }}
-                >
-                  <td style={{ padding: '10px 8px', textAlign: 'center', color: 'var(--fg-muted)' }}>
-                    {q.no || (qi + 1)}
-                  </td>
-                  <td style={{ padding: '10px 10px', whiteSpace: 'nowrap', fontWeight: 500 }}>
-                    {q.tanggalTampil || tglIndo(q.tanggal)}
-                  </td>
-                  <td style={{ padding: '10px 10px', wordBreak: 'break-word', lineHeight: 1.45 }}>
-                    {q.keterangan}
-                  </td>
-                  <td style={{ padding: '10px 10px', textAlign: 'right', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                    {rp(q.jumlah)}
-                  </td>
-                  <td style={{ padding: '10px 10px' }}>
-                    {q.buktiUrl ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        {displayImgUrl && (
-                          <img
-                            src={displayImgUrl}
-                            alt="Bukti Transfer"
-                            onClick={() => setPreviewBukti({ url: displayImgUrl, judul: q.keterangan })}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 12.5, color: 'var(--fg-muted)', fontWeight: 500 }}>
+              <b>{itemsTersaring.length}</b> transaksi tercatat
+            </span>
+            <button
+              type="button"
+              className="btn sm"
+              onClick={() => {
+                window.print();
+              }}
+              title="Cetak Laporan Tabel Keluarga"
+            >
+              <IconPrinter />
+              <span>Cetak Laporan</span>
+            </button>
+          </div>
+        </div>
+
+        {/* TABEL FULL WIDTH */}
+        <div style={{ overflowX: 'auto', width: '100%' }}>
+          <table className="keluarga-table full-table">
+            <thead>
+              <tr style={{ background: 'var(--bg-subtle)', textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
+                <th style={{ width: 56, textAlign: 'center', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--fg-muted)' }}>No</th>
+                <th style={{ width: 140, fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--fg-muted)' }}>Tanggal</th>
+                <th style={{ fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--fg-muted)' }}>Keterangan / Uraian</th>
+                <th style={{ width: 180, textAlign: 'right', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--fg-muted)' }}>Jumlah (Nominal)</th>
+                <th style={{ width: 220, fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--fg-muted)' }}>Bukti Transfer / Dokumen</th>
+                <th className="no-print" style={{ width: 140, textAlign: 'center', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--fg-muted)' }}>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {itemsTersaring.map((q, qi) => {
+                const driveMatch = q.buktiUrl ? q.buktiUrl.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/) : null;
+                const driveThumbUrl = driveMatch ? `/api/drive-image/${driveMatch[1]}` : null;
+                const displayImgUrl = q.buktiUrl?.startsWith('data:') ? q.buktiUrl : driveThumbUrl;
+
+                return (
+                  <tr
+                    key={q.id || qi}
+                    style={{
+                      borderTop: '1px solid var(--border)',
+                      transition: 'background 0.15s ease',
+                    }}
+                  >
+                    <td style={{ textAlign: 'center', color: 'var(--fg-muted)', fontWeight: 500 }}>
+                      {q.no || (qi + 1)}
+                    </td>
+                    <td style={{ whiteSpace: 'nowrap', fontWeight: 500 }}>
+                      {q.tanggalTampil || tglIndo(q.tanggal)}
+                    </td>
+                    <td style={{ wordBreak: 'break-word', lineHeight: 1.5, fontWeight: 500 }}>
+                      {q.keterangan}
+                    </td>
+                    <td style={{ textAlign: 'right', fontWeight: 700, whiteSpace: 'nowrap', color: 'var(--fg)' }}>
+                      {rp(q.jumlah)}
+                    </td>
+                    <td>
+                      {q.buktiUrl ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          {displayImgUrl && (
+                            <img
+                              src={displayImgUrl}
+                              alt="Bukti Transfer"
+                              onClick={() => setPreviewBukti({ url: displayImgUrl, judul: q.keterangan })}
+                              style={{
+                                width: 42,
+                                height: 42,
+                                objectFit: 'cover',
+                                borderRadius: 6,
+                                border: '1px solid var(--border)',
+                                cursor: 'pointer',
+                                flexShrink: 0,
+                              }}
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          )}
+                          <a
+                            href={q.buktiUrl}
+                            target="_blank"
+                            rel="noreferrer"
                             style={{
-                              width: 38,
-                              height: 38,
-                              objectFit: 'cover',
-                              borderRadius: 4,
-                              border: '1px solid var(--border)',
-                              cursor: 'pointer',
-                              flexShrink: 0,
+                              fontSize: 12.5,
+                              color: 'var(--accent, #2563eb)',
+                              textDecoration: 'none',
+                              wordBreak: 'break-word',
+                              fontWeight: 500,
                             }}
-                            onError={(e) => {
-                              (e.target as HTMLElement).style.display = 'none';
-                            }}
-                          />
-                        )}
-                        <a
-                          href={q.buktiUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{
-                            fontSize: 12,
-                            color: 'var(--accent, #2563eb)',
-                            textDecoration: 'none',
-                            wordBreak: 'break-word',
-                          }}
-                          title="Klik untuk membuka dokumen bukti"
+                            title="Klik untuk membuka dokumen bukti"
+                          >
+                            {q.buktiNama || 'Lihat Bukti'}
+                          </a>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn ghost sm"
+                          onClick={() => onUbah(q)}
+                          style={{ fontSize: 11.5, padding: '3px 8px', color: 'var(--fg-muted)' }}
+                          title="Unggah bukti transfer untuk transaksi ini"
                         >
-                          {q.buktiNama || 'Lihat Bukti'}
-                        </a>
-                      </div>
+                          + Lampirkan Bukti
+                        </button>
+                      )}
+                    </td>
+                    <td className="no-print" style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                      <button
+                        type="button"
+                        className="btn sm"
+                        onClick={() => onUbah(q)}
+                        title="Ubah catatan ini"
+                      >
+                        Ubah
+                      </button>
+                      <button
+                        type="button"
+                        className="btn sm"
+                        style={{ color: '#d64545', marginLeft: 6 }}
+                        onClick={() => hapusKlik(q)}
+                        title="Hapus catatan ini"
+                      >
+                        Hapus
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+              {itemsTersaring.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={6}
+                    style={{
+                      padding: '48px 16px',
+                      textAlign: 'center',
+                      color: 'var(--fg-muted)',
+                    }}
+                  >
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--fg)', marginBottom: 4 }}>
+                      {cari ? 'Tidak ada hasil yang sesuai dengan pencarian.' : 'Belum ada catatan pengeluaran keluarga.'}
+                    </div>
+                    <div style={{ fontSize: 12.5, marginBottom: 12 }}>
+                      {cari ? `Kata kunci "${cari}" tidak ditemukan.` : 'Catatan yang ditambahkan akan otomatis tersimpan ke tab Keluarga di Google Sheets.'}
+                    </div>
+                    {cari ? (
+                      <button type="button" className="btn sm" onClick={() => setCari('')}>
+                        Hapus Filter
+                      </button>
                     ) : (
-                      <span style={{ color: 'var(--fg-muted)', fontSize: 12 }}>—</span>
+                      <button
+                        type="button"
+                        className="btn primary sm"
+                        onClick={onBukaCatat}
+                      >
+                        <IconPlus />
+                        <span>Catat Pengeluaran Pertama</span>
+                      </button>
                     )}
                   </td>
-                  <td className="no-print" style={{ padding: '10px 10px', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                    <button
-                      type="button"
-                      className="btn sm"
-                      onClick={() => onUbah(q)}
-                      title="Ubah catatan ini"
-                    >
-                      Ubah
-                    </button>
-                    <button
-                      type="button"
-                      className="btn sm"
-                      style={{ color: '#d64545', marginLeft: 6 }}
-                      onClick={() => hapusKlik(q)}
-                      title="Hapus catatan ini"
-                    >
-                      Hapus
-                    </button>
-                  </td>
                 </tr>
-              );
-            })}
-            {itemsUrut.length === 0 && (
-              <tr>
-                <td
-                  colSpan={6}
-                  style={{
-                    padding: '36px 10px',
-                    textAlign: 'center',
-                    color: 'var(--fg-muted)',
-                  }}
-                >
-                  <div>Belum ada catatan pengeluaran keluarga di Sheet.</div>
-                  <button
-                    type="button"
-                    className="btn primary sm"
-                    onClick={onBukaCatat}
-                    style={{ marginTop: 12 }}
-                  >
-                    <IconPlus />
-                    <span>Catat Pengeluaran Pertama</span>
-                  </button>
-                </td>
-              </tr>
+              )}
+            </tbody>
+            {itemsTersaring.length > 0 && (
+              <tfoot>
+                <tr style={{ background: 'var(--bg-subtle)', fontWeight: 700, borderTop: '2px solid var(--border)' }}>
+                  <td colSpan={3} style={{ padding: '14px 16px', textAlign: 'right', fontSize: 13, color: 'var(--fg-muted)' }}>
+                    Total Pengeluaran Tercatat:
+                  </td>
+                  <td style={{ padding: '14px 16px', textAlign: 'right', fontSize: 15, color: 'var(--accent, #2563eb)' }}>
+                    {rp(itemsTersaring.reduce((acc, it) => acc + (Number(it.jumlah) || 0), 0))}
+                  </td>
+                  <td colSpan={2} style={{ padding: '14px 16px' }}></td>
+                </tr>
+              </tfoot>
             )}
-          </tbody>
-          {itemsUrut.length > 0 && (
-            <tfoot>
-              <tr style={{ background: 'var(--bg-subtle)', fontWeight: 700, borderTop: '2px solid var(--border)' }}>
-                <td colSpan={3} style={{ padding: '10px 10px', textAlign: 'right' }}>
-                  Total Pengeluaran:
-                </td>
-                <td style={{ padding: '10px 10px', textAlign: 'right', fontSize: 14, color: 'var(--accent, #2563eb)' }}>
-                  {rp(totalTercatat)}
-                </td>
-                <td colSpan={2} style={{ padding: '10px 10px' }}></td>
-              </tr>
-            </tfoot>
-          )}
-        </table>
+          </table>
+        </div>
+
+        {/* BOTTOM INFO BAR */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '10px 18px',
+            borderTop: '1px solid var(--border)',
+            background: 'var(--bg-subtle)',
+            fontSize: 12,
+            color: 'var(--fg-muted)',
+            flexWrap: 'wrap',
+            gap: 8,
+          }}
+        >
+          <div>
+            Menampilkan <b>{itemsTersaring.length}</b> dari <b>{items.length}</b> data pengeluaran
+          </div>
+          <div>
+            Sinkronisasi: <b>Google Sheets (Tab Keluarga)</b>
+          </div>
+        </div>
       </div>
 
       {/* MODAL LIGHTBOX PREVIEW BUKTI */}
