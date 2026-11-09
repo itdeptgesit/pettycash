@@ -1,4 +1,4 @@
-import { defineConfig, Plugin } from 'vite';
+import { defineConfig, loadEnv, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { viteSingleFile } from 'vite-plugin-singlefile';
 // @ts-ignore
@@ -203,10 +203,15 @@ function googleApiPlugin(): Plugin {
   };
 }
 
-export default defineConfig({
-  plugins: [react(), viteSingleFile(), googleApiPlugin()],
-  build: {
-    target: 'esnext',
-  },
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  Object.assign(process.env, env);
+
+  return {
+    plugins: [react(), viteSingleFile(), googleApiPlugin()],
+    build: {
+      target: 'esnext',
+    },
+  };
 });
 
