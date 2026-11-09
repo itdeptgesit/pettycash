@@ -3938,7 +3938,7 @@ select:focus, input:focus, textarea:focus {
 
   .print-signature-area {
     flex: 1.4;
-    display: flex;
+    display: flex !important;
     justify-content: space-between;
     gap: 4mm;
   }

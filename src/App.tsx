@@ -275,6 +275,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState<'table' | 'proofs'>('table');
   const [mobileViewTab, setMobileViewTab] = useState<'card' | 'table'>('card');
   const [bulanAktif, setBulanAktif] = useState<string>(() => bulanIni());
+  const [bulanAktifKeluarga, setBulanAktifKeluarga] = useState<string>('all');
 
   // Saldo per bulan & Tab aktif ('dashboard' | 'kas' | 'keluarga')
   const [saldoPerBulan, setSaldoPerBulan] = useState<Record<string, number>>(() => loadSaldoBulanLocal());
@@ -405,10 +406,13 @@ export default function App() {
     terurut.forEach((t) => {
       if (t.tanggal) pertimbangkan(t.tanggal.slice(0, 7));
     });
+    keluargaList.forEach((k) => {
+      if (k.tanggal) pertimbangkan(k.tanggal.slice(0, 7));
+    });
     const hasil: string[] = [];
     for (let n = awal; n <= akhir; n++) hasil.push(keTeks(n));
     return hasil;
-  }, [terurut, saldoAwalCfg]);
+  }, [terurut, saldoAwalCfg, keluargaList]);
 
   // Kolom sumber dana: lima sumber bawaan ditambah sumber lain yang muncul
   // dari data (sumber baru dari formulir otomatis menjadi kolom sendiri,
@@ -613,6 +617,17 @@ export default function App() {
 
   const cetakLaporan = () => {
     setPagePrintStyle('@page { size: A4 landscape; margin: 7mm 7mm 6mm 7mm; }');
+    document.body.classList.remove('printing-voucher', 'printing-proofs');
+    window.print();
+    const handleAfter = () => {
+      window.removeEventListener('afterprint', handleAfter);
+    };
+    window.addEventListener('afterprint', handleAfter);
+  };
+
+  const cetakLaporanKeluarga = () => {
+    setTabAktif('keluarga');
+    setPagePrintStyle('@page { size: A4 portrait; margin: 8mm; }');
     document.body.classList.remove('printing-voucher', 'printing-proofs');
     window.print();
     const handleAfter = () => {
@@ -847,6 +862,21 @@ export default function App() {
                 className="sidebar-item"
                 onClick={() => {
                   setSidebarBuka(false);
+                  cetakLaporanKeluarga();
+                }}
+                title="Cetak Laporan Pengeluaran Keluarga Direksi (Format A4 Portrait)"
+              >
+                <div className="sidebar-item-left">
+                  <IconPrinter />
+                  <span>Cetak Lap. Keluarga A4</span>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className="sidebar-item"
+                onClick={() => {
+                  setSidebarBuka(false);
                   cetakLampiranBukti();
                 }}
                 title="Cetak Lampiran Bukti Transfer (A4 Landscape · 8 bukti per lembar)"
@@ -989,14 +1019,22 @@ export default function App() {
           </div>
         </header>
 
-        {/* HEADER CETAK RESMI BUKU KAS (A4 LANDSCAPE) */}
+        {/* HEADER CETAK RESMI */}
         <div className="print-report-header">
           <div className="print-report-top">
             <div className="print-report-title-block">
               <div className="print-report-org">The Gesit Companies · Executive Desk</div>
-              <h1 className="print-report-title">Buku Kas Petty Cash Direksi</h1>
+              <h1 className="print-report-title">
+                {tabAktif === 'keluarga' ? 'Laporan Pengeluaran Keluarga Direksi' : 'Buku Kas Petty Cash Direksi'}
+              </h1>
               <div className="print-report-sub">
-                Periode: <b>{bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'Semua Periode'}</b> · Basis Kas Riil
+                Periode:{' '}
+                <b>
+                  {(tabAktif === 'keluarga' ? bulanAktifKeluarga : bulanAktif) !== 'all'
+                    ? formatBulanTahun(tabAktif === 'keluarga' ? bulanAktifKeluarga : bulanAktif)
+                    : 'Semua Periode'}
+                </b>{' '}
+                · {tabAktif === 'keluarga' ? 'Pengeluaran Khusus Keluarga Direksi (Tab: Keluarga)' : 'Basis Kas Riil'}
               </div>
             </div>
             <div className="print-report-meta-block">
@@ -1793,9 +1831,14 @@ export default function App() {
       {tabAktif === 'keluarga' && (
         <PengeluaranKeluarga
           daftar={keluargaList}
+          daftarBulan={daftarBulan}
+          bulanAktif={bulanAktifKeluarga}
+          setBulanAktif={setBulanAktifKeluarga}
+          formatBulanTahun={formatBulanTahun}
           onMuatUlang={() => muat()}
           onBukaCatat={() => setModalKeluarga({ buka: true, itemEdit: null })}
           onUbah={(item) => setModalKeluarga({ buka: true, itemEdit: item })}
+          onCetak={cetakLaporanKeluarga}
         />
       )}
         </div>
@@ -3632,33 +3675,78 @@ function ModalKeluarga({
 // --- KOMPONEN PENGELUARAN KELUARGA DIREKSI ---
 function PengeluaranKeluarga({
   daftar,
+  daftarBulan,
+  bulanAktif,
+  setBulanAktif,
+  formatBulanTahun,
   onMuatUlang,
   onBukaCatat,
   onUbah,
+  onCetak,
 }: {
   daftar: KeluargaItem[] | null;
+  daftarBulan: string[];
+  bulanAktif: string;
+  setBulanAktif: (m: string) => void;
+  formatBulanTahun: (ym: string) => string;
   onMuatUlang: () => void;
   onBukaCatat: () => void;
   onUbah: (item: KeluargaItem) => void;
+  onCetak: () => void;
 }) {
   const [cari, setCari] = useState('');
   const [previewBukti, setPreviewBukti] = useState<{ url: string; judul: string } | null>(null);
 
   const items = daftar && daftar.length > 0 ? daftar : loadKeluargaLocal();
-  const itemsUrut = [...items].sort((a, b) =>
-    a.tanggal < b.tanggal ? -1 : a.tanggal > b.tanggal ? 1 : a.dibuat - b.dibuat
-  );
-  const totalTercatat = itemsUrut.reduce((acc, it) => acc + (Number(it.jumlah) || 0), 0);
-
-  const itemsTersaring = itemsUrut.filter((it) => {
-    if (!cari.trim()) return true;
-    const q = cari.toLowerCase();
-    return (
-      it.keterangan.toLowerCase().includes(q) ||
-      String(it.tanggalTampil || it.tanggal).toLowerCase().includes(q) ||
-      String(it.jumlah).includes(q)
+  const itemsUrut = useMemo(() => {
+    return [...items].sort((a, b) =>
+      a.tanggal < b.tanggal ? -1 : a.tanggal > b.tanggal ? 1 : a.dibuat - b.dibuat
     );
-  });
+  }, [items]);
+
+  const totalKeseluruhan = useMemo(() => {
+    return itemsUrut.reduce((acc, it) => acc + (Number(it.jumlah) || 0), 0);
+  }, [itemsUrut]);
+
+  // Filter data berdasarkan periode bulan yang dipilih
+  const itemsPeriode = useMemo(() => {
+    if (bulanAktif === 'all') return itemsUrut;
+    return itemsUrut.filter((it) => it.tanggal && it.tanggal.startsWith(bulanAktif));
+  }, [itemsUrut, bulanAktif]);
+
+  const totalPeriode = useMemo(() => {
+    return itemsPeriode.reduce((acc, it) => acc + (Number(it.jumlah) || 0), 0);
+  }, [itemsPeriode]);
+
+  // Filter pencarian teks
+  const itemsTersaring = useMemo(() => {
+    if (!cari.trim()) return itemsPeriode;
+    const q = cari.toLowerCase();
+    return itemsPeriode.filter((it) => {
+      return (
+        it.keterangan.toLowerCase().includes(q) ||
+        String(it.tanggalTampil || it.tanggal).toLowerCase().includes(q) ||
+        String(it.jumlah).includes(q)
+      );
+    });
+  }, [itemsPeriode, cari]);
+
+  const currentIndex = daftarBulan.indexOf(bulanAktif);
+  const handlePrevBulan = () => {
+    if (bulanAktif === 'all') {
+      if (daftarBulan.length > 0) setBulanAktif(daftarBulan[daftarBulan.length - 1]);
+      return;
+    }
+    if (currentIndex > 0) {
+      setBulanAktif(daftarBulan[currentIndex - 1]);
+    }
+  };
+  const handleNextBulan = () => {
+    if (bulanAktif === 'all') return;
+    if (currentIndex >= 0 && currentIndex < daftarBulan.length - 1) {
+      setBulanAktif(daftarBulan[currentIndex + 1]);
+    }
+  };
 
   const hapusKlik = async (item: KeluargaItem) => {
     if (window.confirm(`Hapus catatan "${item.keterangan}" (${rp(item.jumlah)})?`)) {
@@ -3680,6 +3768,7 @@ function PengeluaranKeluarga({
     <div style={{ width: '100%', maxWidth: '100%' }}>
       {/* HEADER SECTION KELUARGA */}
       <div
+        className="no-print"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -3706,7 +3795,17 @@ function PengeluaranKeluarga({
           </p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button
+            type="button"
+            className="btn"
+            onClick={onCetak}
+            title="Cetak Laporan Pengeluaran Keluarga (A4 Portrait)"
+          >
+            <IconPrinter />
+            <span>Cetak Laporan</span>
+          </button>
+
           <button
             type="button"
             className="btn primary"
@@ -3716,21 +3815,76 @@ function PengeluaranKeluarga({
             <IconPlus />
             <span>Catat Pengeluaran</span>
           </button>
+        </div>
+      </div>
 
-          <div
-            style={{
-              background: 'var(--bg-subtle)',
-              border: '1px solid var(--border)',
-              borderRadius: 8,
-              padding: '6px 16px',
-              textAlign: 'right',
-            }}
-          >
-            <div style={{ fontSize: 10.5, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
-              Total Tercatat
+      {/* BILAH SIKLUS PERIODE BULANAN (SAMA SEPERTI BUKU KAS) */}
+      <div className="period-bar no-print">
+        <div className="period-bar-left">
+          <div className="period-badge-tag">
+            <IconCalendar />
+            <span>Siklus Periode</span>
+          </div>
+
+          <div className="period-nav-group">
+            <button
+              type="button"
+              className="period-nav-btn"
+              onClick={handlePrevBulan}
+              disabled={currentIndex === 0}
+              title="Bulan Sebelumnya"
+            >
+              <IconChevronLeft />
+            </button>
+            <button
+              type="button"
+              className="period-nav-btn"
+              onClick={handleNextBulan}
+              disabled={currentIndex >= daftarBulan.length - 1 || bulanAktif === 'all'}
+              title="Bulan Berikutnya"
+            >
+              <IconChevronRight />
+            </button>
+          </div>
+
+          <div className="period-quick-pills">
+            <button
+              type="button"
+              className={`period-pill ${bulanAktif === 'all' ? 'active' : ''}`}
+              onClick={() => setBulanAktif('all')}
+              title="Tampilkan Seluruh Transaksi Pengeluaran Keluarga"
+            >
+              Semua Periode
+            </button>
+            {daftarBulan.map((ym) => (
+              <button
+                key={ym}
+                type="button"
+                className={`period-pill ${bulanAktif === ym ? 'active' : ''}`}
+                onClick={() => setBulanAktif(ym)}
+                title={`Pilih Periode ${formatBulanTahun(ym)}`}
+              >
+                {formatBulanTahun(ym)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="period-bar-right">
+          <div className="compact-balance-bar">
+            <div className="balance-pill out">
+              <span className="b-label">
+                {bulanAktif !== 'all' ? `Bulan ${formatBulanTahun(bulanAktif)}` : 'Periode Terpilih'}
+              </span>
+              <span className="b-val out">{rp(totalPeriode)}</span>
             </div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent, #2563eb)' }}>
-              {rp(totalTercatat)}
+            <div className="balance-pill">
+              <span className="b-label">Transaksi</span>
+              <span className="b-val">{itemsPeriode.length} Catatan</span>
+            </div>
+            <div className="balance-pill highlight">
+              <span className="b-label">Akumulasi Total</span>
+              <span className="b-val highlight">{rp(totalKeseluruhan)}</span>
             </div>
           </div>
         </div>
@@ -3740,6 +3894,7 @@ function PengeluaranKeluarga({
       <div className="keluarga-card-table">
         {/* TOOLBAR FILTER & SEARCH */}
         <div
+          className="no-print"
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -3775,20 +3930,21 @@ function PengeluaranKeluarga({
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 12.5, color: 'var(--fg-muted)', fontWeight: 500 }}>
-              <b>{itemsTersaring.length}</b> transaksi tercatat
-            </span>
-            <button
-              type="button"
-              className="btn sm"
-              onClick={() => {
-                window.print();
+            <span
+              style={{
+                fontSize: 12,
+                fontWeight: 600,
+                padding: '4px 10px',
+                borderRadius: 6,
+                background: 'var(--secondary)',
+                color: 'var(--fg)',
               }}
-              title="Cetak Laporan Tabel Keluarga"
             >
-              <IconPrinter />
-              <span>Cetak Laporan</span>
-            </button>
+              Periode: {bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'Semua Periode'}
+            </span>
+            <span style={{ fontSize: 12.5, color: 'var(--fg-muted)', fontWeight: 500 }}>
+              <b>{itemsTersaring.length}</b> dari {itemsPeriode.length} transaksi
+            </span>
           </div>
         </div>
 
@@ -3872,7 +4028,7 @@ function PengeluaranKeluarga({
                       ) : (
                         <button
                           type="button"
-                          className="btn ghost sm"
+                          className="btn ghost sm no-print"
                           onClick={() => onUbah(q)}
                           style={{ fontSize: 11.5, padding: '3px 8px', color: 'var(--fg-muted)' }}
                           title="Unggah bukti transfer untuk transaksi ini"
@@ -3914,14 +4070,18 @@ function PengeluaranKeluarga({
                     }}
                   >
                     <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--fg)', marginBottom: 4 }}>
-                      {cari ? 'Tidak ada hasil yang sesuai dengan pencarian.' : 'Belum ada catatan pengeluaran keluarga.'}
+                      {cari
+                        ? 'Tidak ada hasil yang sesuai dengan pencarian.'
+                        : `Tidak ada transaksi pengeluaran keluarga pada periode ${bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : ''}.`}
                     </div>
                     <div style={{ fontSize: 12.5, marginBottom: 12 }}>
-                      {cari ? `Kata kunci "${cari}" tidak ditemukan.` : 'Catatan yang ditambahkan akan otomatis tersimpan ke tab Keluarga di Google Sheets.'}
+                      {cari
+                        ? `Kata kunci "${cari}" tidak ditemukan.`
+                        : 'Pilih periode bulan lain di atas atau tambahkan catatan baru.'}
                     </div>
                     {cari ? (
                       <button type="button" className="btn sm" onClick={() => setCari('')}>
-                        Hapus Filter
+                        Hapus Filter Pencarian
                       </button>
                     ) : (
                       <button
@@ -3930,7 +4090,7 @@ function PengeluaranKeluarga({
                         onClick={onBukaCatat}
                       >
                         <IconPlus />
-                        <span>Catat Pengeluaran Pertama</span>
+                        <span>Catat Pengeluaran Baru</span>
                       </button>
                     )}
                   </td>
@@ -3941,10 +4101,10 @@ function PengeluaranKeluarga({
               <tfoot>
                 <tr style={{ background: 'var(--bg-subtle)', fontWeight: 700, borderTop: '2px solid var(--border)' }}>
                   <td colSpan={3} style={{ padding: '14px 16px', textAlign: 'right', fontSize: 13, color: 'var(--fg-muted)' }}>
-                    Total Pengeluaran Tercatat:
+                    Total Pengeluaran {bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'Tercatat'}:
                   </td>
                   <td style={{ padding: '14px 16px', textAlign: 'right', fontSize: 15, color: 'var(--accent, #2563eb)' }}>
-                    {rp(itemsTersaring.reduce((acc, it) => acc + (Number(it.jumlah) || 0), 0))}
+                    {rp(totalPeriode)}
                   </td>
                   <td colSpan={2} style={{ padding: '14px 16px' }}></td>
                 </tr>
@@ -3955,6 +4115,7 @@ function PengeluaranKeluarga({
 
         {/* BOTTOM INFO BAR */}
         <div
+          className="no-print"
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -3969,11 +4130,31 @@ function PengeluaranKeluarga({
           }}
         >
           <div>
-            Menampilkan <b>{itemsTersaring.length}</b> dari <b>{items.length}</b> data pengeluaran
+            Menampilkan <b>{itemsTersaring.length}</b> transaksi pada periode{' '}
+            <b>{bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'Semua Periode'}</b>
           </div>
           <div>
             Sinkronisasi: <b>Google Sheets (Tab Keluarga)</b>
           </div>
+        </div>
+      </div>
+
+      {/* FORMAL SIGNATURES AREA FOR PRINTED REPORT (A4) */}
+      <div className="print-signature-area" style={{ marginTop: 24 }}>
+        <div className="print-signature-box">
+          <div className="print-sig-role">Disiapkan Oleh:</div>
+          <div className="print-sig-name">Personal Assistant (PA) Direksi</div>
+          <div className="print-sig-title">Tgl: {tglIndo(new Date().toISOString().slice(0, 10))}</div>
+        </div>
+        <div className="print-signature-box">
+          <div className="print-sig-role">Diperiksa Oleh:</div>
+          <div className="print-sig-name">Finance / Accounting</div>
+          <div className="print-sig-title">Tgl: ...................................</div>
+        </div>
+        <div className="print-signature-box">
+          <div className="print-sig-role">Disetujui Oleh:</div>
+          <div className="print-sig-name">Direktur / Direksi</div>
+          <div className="print-sig-title">Tgl: ...................................</div>
         </div>
       </div>
 
