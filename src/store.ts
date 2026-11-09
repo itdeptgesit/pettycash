@@ -263,7 +263,14 @@ export async function addKeluargaGoogle(
   });
   const data = await parseApiResponse(res, 'Menambah catatan keluarga');
   if (!data.ok) throw new Error(data.error || 'Gagal menyimpan catatan keluarga');
-  return data.item as KeluargaItem;
+  const hasil = data.item as KeluargaItem;
+  if (bukti && bukti.dataUrl && !hasil.buktiUrl) {
+    hasil.buktiUrl = bukti.dataUrl;
+    hasil.buktiNama = bukti.nama;
+  }
+  const lokal = loadKeluargaLocal();
+  saveKeluargaLocal([...lokal.filter((it) => it.dibuat !== hasil.dibuat), hasil]);
+  return hasil;
 }
 
 export async function updateKeluargaGoogle(
@@ -277,7 +284,14 @@ export async function updateKeluargaGoogle(
   });
   const data = await parseApiResponse(res, 'Mengubah catatan keluarga');
   if (!data.ok) throw new Error(data.error || 'Gagal mengubah catatan keluarga');
-  return data.item as KeluargaItem;
+  const hasil = data.item as KeluargaItem;
+  if (bukti && bukti.dataUrl && !hasil.buktiUrl) {
+    hasil.buktiUrl = bukti.dataUrl;
+    hasil.buktiNama = bukti.nama;
+  }
+  const lokal = loadKeluargaLocal();
+  saveKeluargaLocal(lokal.map((it) => (it.dibuat === hasil.dibuat || it.id === hasil.id ? hasil : it)));
+  return hasil;
 }
 
 export async function deleteKeluargaGoogle(dibuat: number): Promise<void> {

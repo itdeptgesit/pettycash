@@ -16,10 +16,10 @@ import { dapatkanBuktiGambar, ambilUrlGambar } from './mockReceipt';
 // --- IKON-IKON SVG ---
 const IconGoogle = () => (
   <svg viewBox="0 0 24 24" width="14" height="14" fill="none" style={{ flex: 'none' }}>
-    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
-    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05" />
+    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
   </svg>
 );
 
@@ -258,7 +258,7 @@ export default function App() {
   const [galat, setGalat] = useState('');
   const [lihat, setLihat] = useState<Tx | null>(null);
   const [pengaturan, setPengaturan] = useState(false);
-  
+
   // Modal Transaksi State (Pengisian / Pengeluaran)
   const [modalTransaksi, setModalTransaksi] = useState<{ buka: boolean; jenisAwal: 'out' | 'in'; txEdit?: Tx } | null>(null);
 
@@ -1058,789 +1058,789 @@ export default function App() {
         {/* APP CONTENT CONTAINER */}
         <div className="app-content">
 
-      {/* TAB DASHBOARD EKSEKUTIF */}
-      {tabAktif === 'dashboard' && (
-        <DashboardExecutive
-          sisa={sisa}
-          saldoAwalBulan={saldoAwalBulan}
-          totalIn={totalIn}
-          totalOut={totalOut}
-          baris={barisTersaring}
-          semuaBaris={baris}
-          keluargaList={keluargaList}
-          daftarBulan={daftarBulan}
-          bulanAktif={bulanAktif}
-          setBulanAktif={setBulanAktif}
-          formatBulanTahun={formatBulanTahun}
-          onIsiKas={() => setModalTransaksi({ buka: true, jenisAwal: 'in' })}
-          onCatatPengeluaran={() => setModalTransaksi({ buka: true, jenisAwal: 'out' })}
-          onBukaKas={() => setTabAktif('kas')}
-          onBukaKeluarga={() => setTabAktif('keluarga')}
-          onBukaPengaturan={() => setPengaturan(true)}
-          onCetak={cetakLaporan}
-          onLihatBukti={(tx) => setLihat(tx)}
-          googleConnected={googleConnected}
-        />
-      )}
-
-      {tabAktif === 'kas' && (
-        <>
-          {galat && (
-            <div className="err">
-              <span>{galat}</span>
-              <button className="btn sm" onClick={() => setGalat('')}>Tutup</button>
-            </div>
+          {/* TAB DASHBOARD EKSEKUTIF */}
+          {tabAktif === 'dashboard' && (
+            <DashboardExecutive
+              sisa={sisa}
+              saldoAwalBulan={saldoAwalBulan}
+              totalIn={totalIn}
+              totalOut={totalOut}
+              baris={barisTersaring}
+              semuaBaris={baris}
+              keluargaList={keluargaList}
+              daftarBulan={daftarBulan}
+              bulanAktif={bulanAktif}
+              setBulanAktif={setBulanAktif}
+              formatBulanTahun={formatBulanTahun}
+              onIsiKas={() => setModalTransaksi({ buka: true, jenisAwal: 'in' })}
+              onCatatPengeluaran={() => setModalTransaksi({ buka: true, jenisAwal: 'out' })}
+              onBukaKas={() => setTabAktif('kas')}
+              onBukaKeluarga={() => setTabAktif('keluarga')}
+              onBukaPengaturan={() => setPengaturan(true)}
+              onCetak={cetakLaporan}
+              onLihatBukti={(tx) => setLihat(tx)}
+              googleConnected={googleConnected}
+            />
           )}
 
-      {/* BILAH NAVIGASI PERIODE BULANAN */}
-      <div className="period-bar no-print">
-        <div className="period-bar-left">
-          <div className="period-badge-tag">
-            <IconCalendar />
-            <span>Siklus Kas</span>
-          </div>
-
-          <div className="period-quick-pills">
-            {daftarBulan.map((ym) => (
-              <button
-                key={ym}
-                className={`period-pill ${bulanAktif === ym ? 'active' : ''}`}
-                onClick={() => setBulanAktif(ym)}
-                title={`Pilih Periode ${formatBulanTahun(ym)}`}
-              >
-                {formatBulanTahun(ym)}
-              </button>
-            ))}
-            <button
-              className={`period-pill ${bulanAktif === 'all' ? 'active' : ''}`}
-              onClick={() => setBulanAktif('all')}
-              title="Tampilkan Seluruh Transaksi dari Awal"
-            >
-              Semua Periode
-            </button>
-          </div>
-        </div>
-
-        <div className="period-bar-right">
-          <div className="compact-balance-bar">
-            <div className="balance-pill">
-              <span className="b-label">Saldo Awal</span>
-              <span className="b-val">{rp(saldoAwalBulan)}</span>
-            </div>
-            <div className="balance-pill in">
-              <span className="b-label">Cash In</span>
-              <span className="b-val in">+{rp(totalIn)}</span>
-            </div>
-            <div className="balance-pill out">
-              <span className="b-label">Cash Out</span>
-              <span className="b-val out">-{rp(totalOut)}</span>
-            </div>
-            <div className="balance-pill highlight">
-              <span className="b-label">Sisa Kas</span>
-              <span className="b-val highlight">{rp(sisa)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* PANEL UTAMA: BUKU KAS & LAMPIRAN BUKTI */}
-      <section className="panel">
-        <div className="panel-h">
-          <div className="panel-tabs-header no-print">
-            <button
-              className={`panel-header-tab ${viewMode === 'table' ? 'active' : ''}`}
-              onClick={() => setViewMode('table')}
-              title="Tampilkan Tabel Buku Kas Transaksi"
-            >
-              <IconTable />
-              <span>Buku Kas</span>
-              <span className="tab-count">{barisTersaring.length}</span>
-            </button>
-            <button
-              className={`panel-header-tab ${viewMode === 'proofs' ? 'active' : ''}`}
-              onClick={() => setViewMode('proofs')}
-              title="Tampilkan Galeri Berkas Lampiran Bukti"
-            >
-              <IconGrid />
-              <span>Lampiran Bukti</span>
-              <span className="tab-count">{daftarBukti.length}</span>
-            </button>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-            <span className="hint">
-              {viewMode === 'table'
-                ? `Menampilkan ${barisTersaring.length} dari ${baris.length} catatan`
-                : `${daftarBukti.length} bukti transfer (8 per lembar A4 Landscape)`}
-            </span>
-
-            {viewMode === 'proofs' && (
-              <button className="btn sm primary no-print" onClick={cetakLampiranBukti} title="Cetak Seluruh Lampiran Bukti (A4 Landscape · 8 per lembar)">
-                <IconPrinter /> Cetak Lembar Bukti (A4)
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* TOOLBAR FILTER & CARI */}
-        <div className="table-toolbar">
-          <div className="search-box">
-            <IconSearch />
-            <input
-              type="text"
-              placeholder="Cari deskripsi, keterangan, nominal…"
-              value={cari}
-              onChange={(e) => setCari(e.target.value)}
-            />
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <div className="filter-tabs">
-              <button
-                className={`filter-tab ${filterJenis === 'all' ? 'active' : ''}`}
-                onClick={() => setFilterJenis('all')}
-              >
-                Semua
-              </button>
-              <button
-                className={`filter-tab ${filterJenis === 'out' ? 'active' : ''}`}
-                onClick={() => setFilterJenis('out')}
-              >
-                Cash Out
-              </button>
-              <button
-                className={`filter-tab ${filterJenis === 'in' ? 'active' : ''}`}
-                onClick={() => setFilterJenis('in')}
-              >
-                Cash In
-              </button>
-            </div>
-
-            <select
-              style={{ padding: '5px 10px', fontSize: 12, minHeight: 32 }}
-              value={filterSumber}
-              onChange={(e) => setFilterSumber(e.target.value)}
-              title="Filter per Sumber Dana"
-            >
-              <option value="all">Semua Sumber Dana</option>
-              {kolomSumber.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-
-            {adaFilter && (
-              <button
-                className="btn sm"
-                onClick={() => {
-                  setCari('');
-                  setFilterJenis('all');
-                  setFilterSumber('all');
-                }}
-              >
-                Reset Filter
-              </button>
-            )}
-
-            {/* TOGGLE TAMPILAN KHUSUS LAYAR HP */}
-            {viewMode === 'table' && (
-              <div className="mobile-view-toggle no-print">
-                <button
-                  type="button"
-                  className={`mobile-view-btn ${mobileViewTab === 'card' ? 'active' : ''}`}
-                  onClick={() => setMobileViewTab('card')}
-                  title="Tampilan Kartu Ramah HP"
-                >
-                  Kartu
-                </button>
-                <button
-                  type="button"
-                  className={`mobile-view-btn ${mobileViewTab === 'table' ? 'active' : ''}`}
-                  onClick={() => setMobileViewTab('table')}
-                  title="Tampilan Tabel Lengkap"
-                >
-                  Tabel Penuh
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* MODE TABEL BUKU KAS */}
-        <div
-          className={`tbl-scroll ${mobileViewTab === 'card' ? 'mobile-hide' : ''}`}
-          style={{ display: viewMode === 'table' ? 'block' : 'none' }}
-        >
-          <table>
-            <thead>
-              <tr>
-                <th rowSpan={2} style={{ width: 44 }}>No</th>
-                <th rowSpan={2} style={{ width: 105 }}>Tanggal</th>
-                <th rowSpan={2}>Deskripsi Transaksi</th>
-                <th colSpan={kolomSumber.length} style={{ textAlign: 'center', borderBottom: '1px solid var(--border)' }}>
-                  Cash Out (per Sumber Dana)
-                </th>
-                <th rowSpan={2} className="num" style={{ width: 110 }}>Cash In</th>
-                <th rowSpan={2} className="num" style={{ width: 115 }}>Sisa Saldo</th>
-                <th rowSpan={2} style={{ width: 125 }}>Bukti</th>
-                <th rowSpan={2} style={{ width: 140 }}>Keterangan</th>
-              </tr>
-              <tr>
-                {kolomSumber.map((s) => (
-                  <th key={s} className="num" style={{ width: 95 }}>{s}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {!adaFilter && (
-                <tr>
-                  <td></td>
-                  <td className="date">{tglIndo(tanggalAwalBulan)}</td>
-                  <td>
-                    <b>
-                      {bulanAktif !== 'all'
-                        ? `Saldo Awal ${formatBulanTahun(bulanAktif)} (Rollover)`
-                        : 'Saldo Awal Periode'}
-                    </b>
-                  </td>
-                  {kolomSumber.map((s) => (
-                    <td key={s} className="num"><span className="empty">-</span></td>
-                  ))}
-                  <td className="num"><span className="empty">-</span></td>
-                  <td className="num"><b>{angka(saldoAwalBulan)}</b></td>
-                  <td></td>
-                  <td style={{ color: 'var(--fg-muted)' }}>
-                    {bulanAktif !== 'all' ? 'Saldo bawaan bulan sebelumnya' : 'Saldo awal buku'}
-                  </td>
-                </tr>
+          {tabAktif === 'kas' && (
+            <>
+              {galat && (
+                <div className="err">
+                  <span>{galat}</span>
+                  <button className="btn sm" onClick={() => setGalat('')}>Tutup</button>
+                </div>
               )}
 
-              {memuat ? (
-                <tr>
-                  <td colSpan={6 + kolomSumber.length}>
-                    <div className="loading">
+              {/* BILAH NAVIGASI PERIODE BULANAN */}
+              <div className="period-bar no-print">
+                <div className="period-bar-left">
+                  <div className="period-badge-tag">
+                    <IconCalendar />
+                    <span>Siklus Kas</span>
+                  </div>
+
+                  <div className="period-quick-pills">
+                    {daftarBulan.map((ym) => (
+                      <button
+                        key={ym}
+                        className={`period-pill ${bulanAktif === ym ? 'active' : ''}`}
+                        onClick={() => setBulanAktif(ym)}
+                        title={`Pilih Periode ${formatBulanTahun(ym)}`}
+                      >
+                        {formatBulanTahun(ym)}
+                      </button>
+                    ))}
+                    <button
+                      className={`period-pill ${bulanAktif === 'all' ? 'active' : ''}`}
+                      onClick={() => setBulanAktif('all')}
+                      title="Tampilkan Seluruh Transaksi dari Awal"
+                    >
+                      Semua Periode
+                    </button>
+                  </div>
+                </div>
+
+                <div className="period-bar-right">
+                  <div className="compact-balance-bar">
+                    <div className="balance-pill">
+                      <span className="b-label">Saldo Awal</span>
+                      <span className="b-val">{rp(saldoAwalBulan)}</span>
+                    </div>
+                    <div className="balance-pill in">
+                      <span className="b-label">Cash In</span>
+                      <span className="b-val in">+{rp(totalIn)}</span>
+                    </div>
+                    <div className="balance-pill out">
+                      <span className="b-label">Cash Out</span>
+                      <span className="b-val out">-{rp(totalOut)}</span>
+                    </div>
+                    <div className="balance-pill highlight">
+                      <span className="b-label">Sisa Kas</span>
+                      <span className="b-val highlight">{rp(sisa)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* PANEL UTAMA: BUKU KAS & LAMPIRAN BUKTI */}
+              <section className="panel">
+                <div className="panel-h">
+                  <div className="panel-tabs-header no-print">
+                    <button
+                      className={`panel-header-tab ${viewMode === 'table' ? 'active' : ''}`}
+                      onClick={() => setViewMode('table')}
+                      title="Tampilkan Tabel Buku Kas Transaksi"
+                    >
+                      <IconTable />
+                      <span>Buku Kas</span>
+                      <span className="tab-count">{barisTersaring.length}</span>
+                    </button>
+                    <button
+                      className={`panel-header-tab ${viewMode === 'proofs' ? 'active' : ''}`}
+                      onClick={() => setViewMode('proofs')}
+                      title="Tampilkan Galeri Berkas Lampiran Bukti"
+                    >
+                      <IconGrid />
+                      <span>Lampiran Bukti</span>
+                      <span className="tab-count">{daftarBukti.length}</span>
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <span className="hint">
+                      {viewMode === 'table'
+                        ? `Menampilkan ${barisTersaring.length} dari ${baris.length} catatan`
+                        : `${daftarBukti.length} bukti transfer (8 per lembar A4 Landscape)`}
+                    </span>
+
+                    {viewMode === 'proofs' && (
+                      <button className="btn sm primary no-print" onClick={cetakLampiranBukti} title="Cetak Seluruh Lampiran Bukti (A4 Landscape · 8 per lembar)">
+                        <IconPrinter /> Cetak Lembar Bukti (A4)
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* TOOLBAR FILTER & CARI */}
+                <div className="table-toolbar">
+                  <div className="search-box">
+                    <IconSearch />
+                    <input
+                      type="text"
+                      placeholder="Cari deskripsi, keterangan, nominal…"
+                      value={cari}
+                      onChange={(e) => setCari(e.target.value)}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                    <div className="filter-tabs">
+                      <button
+                        className={`filter-tab ${filterJenis === 'all' ? 'active' : ''}`}
+                        onClick={() => setFilterJenis('all')}
+                      >
+                        Semua
+                      </button>
+                      <button
+                        className={`filter-tab ${filterJenis === 'out' ? 'active' : ''}`}
+                        onClick={() => setFilterJenis('out')}
+                      >
+                        Cash Out
+                      </button>
+                      <button
+                        className={`filter-tab ${filterJenis === 'in' ? 'active' : ''}`}
+                        onClick={() => setFilterJenis('in')}
+                      >
+                        Cash In
+                      </button>
+                    </div>
+
+                    <select
+                      style={{ padding: '5px 10px', fontSize: 12, minHeight: 32 }}
+                      value={filterSumber}
+                      onChange={(e) => setFilterSumber(e.target.value)}
+                      title="Filter per Sumber Dana"
+                    >
+                      <option value="all">Semua Sumber Dana</option>
+                      {kolomSumber.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+
+                    {adaFilter && (
+                      <button
+                        className="btn sm"
+                        onClick={() => {
+                          setCari('');
+                          setFilterJenis('all');
+                          setFilterSumber('all');
+                        }}
+                      >
+                        Reset Filter
+                      </button>
+                    )}
+
+                    {/* TOGGLE TAMPILAN KHUSUS LAYAR HP */}
+                    {viewMode === 'table' && (
+                      <div className="mobile-view-toggle no-print">
+                        <button
+                          type="button"
+                          className={`mobile-view-btn ${mobileViewTab === 'card' ? 'active' : ''}`}
+                          onClick={() => setMobileViewTab('card')}
+                          title="Tampilan Kartu Ramah HP"
+                        >
+                          Kartu
+                        </button>
+                        <button
+                          type="button"
+                          className={`mobile-view-btn ${mobileViewTab === 'table' ? 'active' : ''}`}
+                          onClick={() => setMobileViewTab('table')}
+                          title="Tampilan Tabel Lengkap"
+                        >
+                          Tabel Penuh
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* MODE TABEL BUKU KAS */}
+                <div
+                  className={`tbl-scroll ${mobileViewTab === 'card' ? 'mobile-hide' : ''}`}
+                  style={{ display: viewMode === 'table' ? 'block' : 'none' }}
+                >
+                  <table>
+                    <thead>
+                      <tr>
+                        <th rowSpan={2} style={{ width: 44 }}>No</th>
+                        <th rowSpan={2} style={{ width: 105 }}>Tanggal</th>
+                        <th rowSpan={2}>Deskripsi Transaksi</th>
+                        <th colSpan={kolomSumber.length} style={{ textAlign: 'center', borderBottom: '1px solid var(--border)' }}>
+                          Cash Out (per Sumber Dana)
+                        </th>
+                        <th rowSpan={2} className="num" style={{ width: 110 }}>Cash In</th>
+                        <th rowSpan={2} className="num" style={{ width: 115 }}>Sisa Saldo</th>
+                        <th rowSpan={2} style={{ width: 125 }}>Bukti</th>
+                        <th rowSpan={2} style={{ width: 140 }}>Keterangan</th>
+                      </tr>
+                      <tr>
+                        {kolomSumber.map((s) => (
+                          <th key={s} className="num" style={{ width: 95 }}>{s}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {!adaFilter && (
+                        <tr>
+                          <td></td>
+                          <td className="date">{tglIndo(tanggalAwalBulan)}</td>
+                          <td>
+                            <b>
+                              {bulanAktif !== 'all'
+                                ? `Saldo Awal ${formatBulanTahun(bulanAktif)} (Rollover)`
+                                : 'Saldo Awal Periode'}
+                            </b>
+                          </td>
+                          {kolomSumber.map((s) => (
+                            <td key={s} className="num"><span className="empty">-</span></td>
+                          ))}
+                          <td className="num"><span className="empty">-</span></td>
+                          <td className="num"><b>{angka(saldoAwalBulan)}</b></td>
+                          <td></td>
+                          <td style={{ color: 'var(--fg-muted)' }}>
+                            {bulanAktif !== 'all' ? 'Saldo bawaan bulan sebelumnya' : 'Saldo awal buku'}
+                          </td>
+                        </tr>
+                      )}
+
+                      {memuat ? (
+                        <tr>
+                          <td colSpan={6 + kolomSumber.length}>
+                            <div className="loading">
+                              <div className="spinner" />
+                              <div>Memuat data kas…</div>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : barisTersaring.length === 0 ? (
+                        <tr>
+                          <td colSpan={6 + kolomSumber.length}>
+                            {adaFilter ? (
+                              <div className="table-empty-state">
+                                <div className="empty-state-title">Tidak ada transaksi yang cocok</div>
+                                <div className="empty-state-desc">
+                                  Tidak ditemukan catatan kas yang sesuai dengan kata kunci pencarian atau filter yang Anda pilih.
+                                </div>
+                                <button
+                                  type="button"
+                                  className="btn sm outline-primary"
+                                  style={{ marginTop: 12 }}
+                                  onClick={() => {
+                                    setCari('');
+                                    setFilterJenis('all');
+                                    setFilterSumber('all');
+                                  }}
+                                >
+                                  Reset Filter
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="table-empty-state">
+                                <div className="empty-state-title">
+                                  Belum ada transaksi di bulan {bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'periode ini'}
+                                </div>
+                                <div className="empty-state-desc">
+                                  {saldoAwalBulan !== 0
+                                    ? `Saldo berjalan terbawa dari bulan sebelumnya sebesar ${rp(saldoAwalBulan)}. Belum ada mutasi pengeluaran maupun pengisian kas tercatat.`
+                                    : 'Belum ada mutasi pengeluaran atau pengisian kas yang tercatat untuk periode ini.'}
+                                </div>
+                                <div style={{ display: 'inline-flex', gap: 8, marginTop: 14 }}>
+                                  <button
+                                    type="button"
+                                    className="btn primary sm"
+                                    onClick={() => setModalTransaksi({ buka: true, jenisAwal: 'out' })}
+                                  >
+                                    <IconPlus /> Catat Pengeluaran
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="btn outline-success sm"
+                                    onClick={() => setModalTransaksi({ buka: true, jenisAwal: 'in' })}
+                                  >
+                                    <IconArrowDown /> + Isi Kas
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ) : (
+                        tampil
+                      )}
+
+                      {!memuat && !adaFilter && barisTersaring.length > 0 && (
+                        <tr className="checkpoint">
+                          <td colSpan={3 + kolomSumber.length} className="lbl">
+                            {bulanAktif !== 'all' ? `Saldo Akhir Kas (${formatBulanTahun(bulanAktif)})` : 'Saldo Akhir Buku Kas'}
+                          </td>
+                          <td className="num" style={{ color: 'var(--primary)', fontSize: 14 }}>{angka(sisa)}</td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                      )}
+
+                      {!memuat && barisTersaring.length > 0 && (
+                        <tr className="print-total-row">
+                          <td></td>
+                          <td></td>
+                          <td><b>TOTAL PENGELUARAN &amp; SALDO AKHIR</b></td>
+                          {kolomSumber.map((s) => {
+                            const totSumber = barisTersaring
+                              .filter((b) => b.tx.jenis === 'out' && b.tx.sumber === s)
+                              .reduce((sum, b) => sum + b.tx.nominal, 0);
+                            return (
+                              <td key={s} className="num">
+                                <b>{angka(totSumber)}</b>
+                              </td>
+                            );
+                          })}
+                          <td className="num">
+                            <b style={{ color: 'var(--accent-in)' }}>{angka(totalIn)}</b>
+                          </td>
+                          <td className="num">
+                            <b style={{ color: 'var(--primary)' }}>{angka(sisa)}</b>
+                          </td>
+                          <td colSpan={2} style={{ fontSize: 10, color: 'var(--fg-muted)' }}>
+                            {daftarBukti.length} lampiran bukti terverifikasi
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* MODE DAFTAR KARTU TRANSAKSI KHUSUS MOBILE */}
+                <div
+                  className={`mobile-tx-list no-print ${mobileViewTab === 'table' ? 'mobile-hide' : ''}`}
+                  style={{ display: viewMode === 'table' ? undefined : 'none' }}
+                >
+                  {!adaFilter && (
+                    <div className="mobile-rollover-card">
+                      <div className="m-rollover-header">
+                        <span className="m-rollover-tag">SALDO AWAL</span>
+                        <span className="m-rollover-date">{tglIndo(tanggalAwalBulan)}</span>
+                      </div>
+                      <div className="m-rollover-body">
+                        <span className="m-rollover-title">
+                          {bulanAktif !== 'all'
+                            ? `Saldo Awal ${formatBulanTahun(bulanAktif)} (Rollover)`
+                            : 'Saldo Awal Periode'}
+                        </span>
+                        <span className="m-rollover-val">{rp(saldoAwalBulan)}</span>
+                      </div>
+                      <span className="m-rollover-desc">
+                        {bulanAktif !== 'all' ? 'Akumulasi saldo kas bawaan bulan sebelumnya' : 'Saldo awal buku kas'}
+                      </span>
+                    </div>
+                  )}
+
+                  {memuat ? (
+                    <div className="loading" style={{ padding: '36px 16px' }}>
                       <div className="spinner" />
                       <div>Memuat data kas…</div>
                     </div>
-                  </td>
-                </tr>
-              ) : barisTersaring.length === 0 ? (
-                <tr>
-                  <td colSpan={6 + kolomSumber.length}>
-                    {adaFilter ? (
-                      <div className="table-empty-state">
-                        <div className="empty-state-title">Tidak ada transaksi yang cocok</div>
-                        <div className="empty-state-desc">
-                          Tidak ditemukan catatan kas yang sesuai dengan kata kunci pencarian atau filter yang Anda pilih.
-                        </div>
-                        <button
-                          type="button"
-                          className="btn sm outline-primary"
-                          style={{ marginTop: 12 }}
-                          onClick={() => {
-                            setCari('');
-                            setFilterJenis('all');
-                            setFilterSumber('all');
-                          }}
-                        >
-                          Reset Filter
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="table-empty-state">
-                        <div className="empty-state-title">
-                          Belum ada transaksi di bulan {bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'periode ini'}
-                        </div>
-                        <div className="empty-state-desc">
-                          {saldoAwalBulan !== 0
-                            ? `Saldo berjalan terbawa dari bulan sebelumnya sebesar ${rp(saldoAwalBulan)}. Belum ada mutasi pengeluaran maupun pengisian kas tercatat.`
-                            : 'Belum ada mutasi pengeluaran atau pengisian kas yang tercatat untuk periode ini.'}
-                        </div>
-                        <div style={{ display: 'inline-flex', gap: 8, marginTop: 14 }}>
+                  ) : barisTersaring.length === 0 ? (
+                    <div className="mobile-empty-card">
+                      {adaFilter ? (
+                        <div>
+                          <div style={{ fontWeight: 600, color: 'var(--fg)', marginBottom: 4 }}>
+                            Tidak ada transaksi yang cocok
+                          </div>
+                          <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 12 }}>
+                            Tidak ditemukan catatan kas yang sesuai dengan filter pencarian.
+                          </div>
                           <button
                             type="button"
-                            className="btn primary sm"
-                            onClick={() => setModalTransaksi({ buka: true, jenisAwal: 'out' })}
+                            className="btn sm outline-primary"
+                            onClick={() => {
+                              setCari('');
+                              setFilterJenis('all');
+                              setFilterSumber('all');
+                            }}
                           >
-                            <IconPlus /> Catat Pengeluaran
-                          </button>
-                          <button
-                            type="button"
-                            className="btn outline-success sm"
-                            onClick={() => setModalTransaksi({ buka: true, jenisAwal: 'in' })}
-                          >
-                            <IconArrowDown /> + Isi Kas
+                            Reset Filter
                           </button>
                         </div>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ) : (
-                tampil
-              )}
+                      ) : (
+                        <div>
+                          <div style={{ fontWeight: 600, color: 'var(--fg)', marginBottom: 4, fontSize: 13.5 }}>
+                            Belum ada transaksi di bulan {bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'periode ini'}
+                          </div>
+                          <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 14, lineHeight: 1.4 }}>
+                            {saldoAwalBulan !== 0
+                              ? `Saldo berjalan terbawa dari bulan sebelumnya ${rp(saldoAwalBulan)}. Belum ada mutasi baru.`
+                              : 'Belum ada mutasi pengeluaran maupun pengisian kas tercatat.'}
+                          </div>
+                          <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                            <button
+                              type="button"
+                              className="btn primary sm"
+                              onClick={() => setModalTransaksi({ buka: true, jenisAwal: 'out' })}
+                            >
+                              <IconPlus /> Pengeluaran
+                            </button>
+                            <button
+                              type="button"
+                              className="btn outline-success sm"
+                              onClick={() => setModalTransaksi({ buka: true, jenisAwal: 'in' })}
+                            >
+                              <IconArrowDown /> + Isi Kas
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    barisTersaring.map((b) => {
+                      const isOut = b.tx.jenis === 'out';
+                      const isIn = b.tx.jenis === 'in';
+                      const imgUrl = ambilUrlGambar(b.tx.buktiUrl);
 
-              {!memuat && !adaFilter && barisTersaring.length > 0 && (
-                <tr className="checkpoint">
-                  <td colSpan={3 + kolomSumber.length} className="lbl">
-                    {bulanAktif !== 'all' ? `Saldo Akhir Kas (${formatBulanTahun(bulanAktif)})` : 'Saldo Akhir Buku Kas'}
-                  </td>
-                  <td className="num" style={{ color: 'var(--primary)', fontSize: 14 }}>{angka(sisa)}</td>
-                  <td></td>
-                  <td></td>
-                </tr>
-              )}
+                      return (
+                        <div key={b.tx.id} className={`mobile-tx-card ${isOut ? 'out' : 'in'}`}>
+                          {/* Top Bar: Tanggal & Badge Sumber Dana */}
+                          <div className="m-card-top">
+                            <div className="m-card-badges">
+                              <span className={`m-badge ${isOut ? 'out' : 'in'}`}>
+                                {isOut ? 'Cash Out' : 'Cash In'}
+                              </span>
+                              {b.tx.sumber && <span className="m-badge-sumber">{b.tx.sumber}</span>}
+                            </div>
+                            <span className="m-card-date">{tglIndo(b.tx.tanggal)}</span>
+                          </div>
 
-              {!memuat && barisTersaring.length > 0 && (
-                <tr className="print-total-row">
-                  <td></td>
-                  <td></td>
-                  <td><b>TOTAL PENGELUARAN &amp; SALDO AKHIR</b></td>
-                  {kolomSumber.map((s) => {
-                    const totSumber = barisTersaring
-                      .filter((b) => b.tx.jenis === 'out' && b.tx.sumber === s)
-                      .reduce((sum, b) => sum + b.tx.nominal, 0);
-                    return (
-                      <td key={s} className="num">
-                        <b>{angka(totSumber)}</b>
-                      </td>
-                    );
-                  })}
-                  <td className="num">
-                    <b style={{ color: 'var(--accent-in)' }}>{angka(totalIn)}</b>
-                  </td>
-                  <td className="num">
-                    <b style={{ color: 'var(--primary)' }}>{angka(sisa)}</b>
-                  </td>
-                  <td colSpan={2} style={{ fontSize: 10, color: 'var(--fg-muted)' }}>
-                    {daftarBukti.length} lampiran bukti terverifikasi
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                          {/* Body: Deskripsi & Keterangan */}
+                          <div className="m-card-body">
+                            <div className="m-card-title">{b.tx.deskripsi}</div>
+                            {b.tx.keterangan && (
+                              <div className="m-card-desc">{b.tx.keterangan}</div>
+                            )}
+                          </div>
 
-        {/* MODE DAFTAR KARTU TRANSAKSI KHUSUS MOBILE */}
-        <div
-          className={`mobile-tx-list no-print ${mobileViewTab === 'table' ? 'mobile-hide' : ''}`}
-          style={{ display: viewMode === 'table' ? undefined : 'none' }}
-        >
-          {!adaFilter && (
-            <div className="mobile-rollover-card">
-              <div className="m-rollover-header">
-                <span className="m-rollover-tag">SALDO AWAL</span>
-                <span className="m-rollover-date">{tglIndo(tanggalAwalBulan)}</span>
-              </div>
-              <div className="m-rollover-body">
-                <span className="m-rollover-title">
-                  {bulanAktif !== 'all'
-                    ? `Saldo Awal ${formatBulanTahun(bulanAktif)} (Rollover)`
-                    : 'Saldo Awal Periode'}
-                </span>
-                <span className="m-rollover-val">{rp(saldoAwalBulan)}</span>
-              </div>
-              <span className="m-rollover-desc">
-                {bulanAktif !== 'all' ? 'Akumulasi saldo kas bawaan bulan sebelumnya' : 'Saldo awal buku kas'}
-              </span>
-            </div>
-          )}
+                          {/* Amount & Running Saldo */}
+                          <div className="m-card-fin">
+                            <div className="m-card-nominal-wrap">
+                              <span className="m-card-lbl">Nominal</span>
+                              <span className={`m-card-amount ${isIn ? 'in' : 'out'}`}>
+                                {isIn ? `+ ${rp(b.tx.nominal)}` : `- ${rp(b.tx.nominal)}`}
+                              </span>
+                            </div>
+                            <div className="m-card-saldo-wrap">
+                              <span className="m-card-lbl">Sisa Kas</span>
+                              <span className={`m-card-saldo ${b.saldo < 0 ? 'defisit' : ''}`}>{rp(b.saldo)}</span>
+                            </div>
+                          </div>
 
-          {memuat ? (
-            <div className="loading" style={{ padding: '36px 16px' }}>
-              <div className="spinner" />
-              <div>Memuat data kas…</div>
-            </div>
-          ) : barisTersaring.length === 0 ? (
-            <div className="mobile-empty-card">
-              {adaFilter ? (
-                <div>
-                  <div style={{ fontWeight: 600, color: 'var(--fg)', marginBottom: 4 }}>
-                    Tidak ada transaksi yang cocok
-                  </div>
-                  <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 12 }}>
-                    Tidak ditemukan catatan kas yang sesuai dengan filter pencarian.
-                  </div>
-                  <button
-                    type="button"
-                    className="btn sm outline-primary"
-                    onClick={() => {
-                      setCari('');
-                      setFilterJenis('all');
-                      setFilterSumber('all');
-                    }}
-                  >
-                    Reset Filter
-                  </button>
+                          {/* Actions Bar: Bukti & Cetak Voucher */}
+                          <div className="m-card-foot">
+                            {b.tx.buktiNama || imgUrl ? (
+                              <button
+                                type="button"
+                                className="btn sm proof-btn"
+                                onClick={() => setLihat({ ...b.tx, buktiUrl: imgUrl || b.tx.buktiUrl })}
+                                title="Buka Pratinjau Bukti"
+                              >
+                                <IconFile />
+                                <span>Lihat Bukti</span>
+                              </button>
+                            ) : isOut ? (
+                              <span className="m-card-miss-proof">Belum ada bukti</span>
+                            ) : (
+                              <span />
+                            )}
+
+                            <button
+                              type="button"
+                              className="btn sm ghost"
+                              onClick={() => setTxCetak(b.tx)}
+                              title="Cetak Bukti Voucher Kas (BPK)"
+                            >
+                              <IconPrinter />
+                              <span>Cetak Voucher</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              className="btn sm ghost"
+                              onClick={() => setModalTransaksi({ buka: true, jenisAwal: b.tx.jenis, txEdit: b.tx })}
+                              title="Ubah catatan ini"
+                            >
+                              <IconEdit />
+                              <span>Ubah</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              className="btn sm ghost"
+                              style={{ color: '#d64545' }}
+                              onClick={() => hapusTx(b.tx)}
+                              title="Hapus catatan ini"
+                            >
+                              <IconTrash />
+                              <span>Hapus</span>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+
+                  {!memuat && !adaFilter && barisTersaring.length > 0 && (
+                    <div className={`mobile-checkpoint-card ${sisa < 0 ? 'defisit' : ''}`}>
+                      <span className="m-cp-label">
+                        {bulanAktif !== 'all' ? `Saldo Akhir Kas (${formatBulanTahun(bulanAktif)})` : 'Saldo Akhir Buku Kas'}
+                      </span>
+                      <span className={`m-cp-val ${sisa < 0 ? 'defisit' : ''}`}>{rp(sisa)}</span>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div>
-                  <div style={{ fontWeight: 600, color: 'var(--fg)', marginBottom: 4, fontSize: 13.5 }}>
-                    Belum ada transaksi di bulan {bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'periode ini'}
+
+                {/* MODE GALERI LAMPIRAN BUKTI TRANSFER (PENGGANTI EXCEL MANUAL) */}
+                <div
+                  className="proofs-grid"
+                  style={{ display: viewMode === 'proofs' ? 'grid' : 'none' }}
+                >
+                  {daftarBukti.length === 0 ? (
+                    <div style={{ gridColumn: '1 / -1', padding: '40px 16px', textAlign: 'center', color: 'var(--fg-muted)' }}>
+                      Tidak ada bukti pengeluaran yang sesuai dengan filter pencarian.
+                    </div>
+                  ) : (
+                    daftarBukti.map(({ nomor, tx, imgUrl }) => (
+                      <div key={tx.id} className="proof-card">
+                        <div className="proof-card-header">
+                          <div className="proof-card-num-title">
+                            <span className="proof-card-no">{nomor}.</span>
+                            <span className="proof-card-title" title={tx.deskripsi}>
+                              {tx.deskripsi}
+                            </span>
+                          </div>
+                          <span className={`proof-card-amt ${tx.jenis === 'in' ? 'in' : ''}`}>
+                            {rp(tx.nominal)}
+                          </span>
+                        </div>
+
+                        <div className="proof-card-meta">
+                          <span>{tglIndo(tx.tanggal)}</span>
+                          <span>{tx.sumber || 'Kas Operasional'}</span>
+                        </div>
+
+                        {imgUrl ? (
+                          <div
+                            className="proof-card-img-area"
+                            onClick={() => setLihat({ ...tx, buktiUrl: imgUrl })}
+                            title="Klik untuk memperbesar bukti"
+                          >
+                            <img src={imgUrl} alt={tx.deskripsi} className="proof-card-img" />
+                          </div>
+                        ) : (
+                          <div className="proof-card-empty-img">
+                            <IconFile />
+                            <b style={{ fontSize: 11.5 }}>Belum Ada Bukti Transfer</b>
+                            <label className="btn sm outline-success no-print" style={{ marginTop: 6, cursor: 'pointer' }}>
+                              <IconUpload /> Unggah Bukti
+                              <input
+                                type="file"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                onChange={(e) => {
+                                  if (e.target.files?.[0]) gantiBukti(tx.id, e.target.files[0]);
+                                }}
+                              />
+                            </label>
+                          </div>
+                        )}
+
+                        <div className="proof-card-actions no-print">
+                          <button
+                            className="btn sm ghost"
+                            onClick={() => setTxCetak(tx)}
+                            title="Cetak Voucher Kas (BPK)"
+                          >
+                            <IconPrinter /> Voucher
+                          </button>
+
+                          <div style={{ display: 'flex', gap: 4 }}>
+                            {imgUrl && (
+                              <button
+                                className="btn sm"
+                                onClick={() => setLihat({ ...tx, buktiUrl: imgUrl })}
+                                title="Pratinjau Bukti"
+                              >
+                                Perbesar
+                              </button>
+                            )}
+                            <label className="btn sm ghost icon-only" title="Ganti Berkas Bukti" style={{ cursor: 'pointer' }}>
+                              <IconUpload />
+                              <input
+                                type="file"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                onChange={(e) => {
+                                  if (e.target.files?.[0]) gantiBukti(tx.id, e.target.files[0]);
+                                }}
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </section>
+
+              {/* SECTION DUA KOLOM: REKAP & RIWAYAT PENGISIAN */}
+              <div className="cols">
+                {/* REKAP PER SUMBER DANA */}
+                <section className="panel">
+                  <div className="panel-h">
+                    <div>
+                      <h2>Rekap per Sumber Dana</h2>
+                      <span className="hint">Distribusi total pengeluaran (Cash Out)</span>
+                    </div>
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--fg-muted)', marginBottom: 14, lineHeight: 1.4 }}>
-                    {saldoAwalBulan !== 0
-                      ? `Saldo berjalan terbawa dari bulan sebelumnya ${rp(saldoAwalBulan)}. Belum ada mutasi baru.`
-                      : 'Belum ada mutasi pengeluaran maupun pengisian kas tercatat.'}
+                  <div>
+                    {rekap.map((r) => {
+                      const persentase = totalRekap > 0 ? Math.round((r.total / totalRekap) * 100) : 0;
+                      return (
+                        <div className="rekap-row" key={r.nama}>
+                          <span className="nm">
+                            {r.nama}
+                            {r.masuk > 0 && (
+                              <small style={{ display: 'block', fontSize: 10.5, fontWeight: 600, color: 'var(--success)' }}>
+                                +{rp(r.masuk)} masuk
+                              </small>
+                            )}
+                          </span>
+                          <span className="bar">
+                            <i style={{ width: `${(r.total / rekapMax) * 100}%` }} />
+                          </span>
+                          <span className="pct">{persentase}%</span>
+                          <span className="amt">{rp(r.total)}</span>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                </section>
+
+                {/* RIWAYAT PENGISIAN (CASH IN) */}
+                <section className="panel">
+                  <div className="panel-h">
+                    <div>
+                      <h2>Riwayat Pengisian (Cash In)</h2>
+                      <span className="hint">Pencatatan dana masuk &amp; top-up</span>
+                    </div>
                     <button
-                      type="button"
-                      className="btn primary sm"
-                      onClick={() => setModalTransaksi({ buka: true, jenisAwal: 'out' })}
-                    >
-                      <IconPlus /> Pengeluaran
-                    </button>
-                    <button
-                      type="button"
-                      className="btn outline-success sm"
+                      className="btn sm success"
                       onClick={() => setModalTransaksi({ buka: true, jenisAwal: 'in' })}
                     >
-                      <IconArrowDown /> + Isi Kas
+                      <IconPlus /> Isi Kas
                     </button>
                   </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            barisTersaring.map((b) => {
-              const isOut = b.tx.jenis === 'out';
-              const isIn = b.tx.jenis === 'in';
-              const imgUrl = ambilUrlGambar(b.tx.buktiUrl);
-
-              return (
-                <div key={b.tx.id} className={`mobile-tx-card ${isOut ? 'out' : 'in'}`}>
-                  {/* Top Bar: Tanggal & Badge Sumber Dana */}
-                  <div className="m-card-top">
-                    <div className="m-card-badges">
-                      <span className={`m-badge ${isOut ? 'out' : 'in'}`}>
-                        {isOut ? 'Cash Out' : 'Cash In'}
-                      </span>
-                      {b.tx.sumber && <span className="m-badge-sumber">{b.tx.sumber}</span>}
-                    </div>
-                    <span className="m-card-date">{tglIndo(b.tx.tanggal)}</span>
-                  </div>
-
-                  {/* Body: Deskripsi & Keterangan */}
-                  <div className="m-card-body">
-                    <div className="m-card-title">{b.tx.deskripsi}</div>
-                    {b.tx.keterangan && (
-                      <div className="m-card-desc">{b.tx.keterangan}</div>
-                    )}
-                  </div>
-
-                  {/* Amount & Running Saldo */}
-                  <div className="m-card-fin">
-                    <div className="m-card-nominal-wrap">
-                      <span className="m-card-lbl">Nominal</span>
-                      <span className={`m-card-amount ${isIn ? 'in' : 'out'}`}>
-                        {isIn ? `+ ${rp(b.tx.nominal)}` : `- ${rp(b.tx.nominal)}`}
-                      </span>
-                    </div>
-                    <div className="m-card-saldo-wrap">
-                      <span className="m-card-lbl">Sisa Kas</span>
-                      <span className={`m-card-saldo ${b.saldo < 0 ? 'defisit' : ''}`}>{rp(b.saldo)}</span>
+                  <div>
+                    {pengisian.map((t) => (
+                      <div className="refill-row" key={t.id}>
+                        <div>
+                          <div style={{ fontWeight: 600, color: 'var(--ink)' }}>{t.deskripsi}</div>
+                          <div className="dt">{tglIndo(t.tanggal)} {t.sumber ? `· ${t.sumber}` : ''} {t.buktiNama ? `· ${t.buktiNama}` : ''}</div>
+                        </div>
+                        <span className="amt">+ {rp(t.nominal)}</span>
+                        <button
+                          type="button"
+                          className="btn sm no-print"
+                          style={{ padding: '3px 7px', minHeight: 24, borderRadius: 6, color: '#d64545' }}
+                          title="Hapus catatan pengisian ini"
+                          onClick={() => hapusTx(t)}
+                        >
+                          <IconTrash />
+                        </button>
+                      </div>
+                    ))}
+                    <div className="refill-row">
+                      <div>
+                        <div style={{ fontWeight: 600 }}>Saldo Awal {bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'Periode'}</div>
+                        <div className="dt">{tglIndo(tanggalAwalBulan)}</div>
+                      </div>
+                      <span className="amt" style={{ color: 'var(--ink)' }}>{rp(saldoAwalBulan)}</span>
                     </div>
                   </div>
+                </section>
+              </div>
 
-                  {/* Actions Bar: Bukti & Cetak Voucher */}
-                  <div className="m-card-foot">
-                    {b.tx.buktiNama || imgUrl ? (
-                      <button
-                        type="button"
-                        className="btn sm proof-btn"
-                        onClick={() => setLihat({ ...b.tx, buktiUrl: imgUrl || b.tx.buktiUrl })}
-                        title="Buka Pratinjau Bukti"
-                      >
-                        <IconFile />
-                        <span>Lihat Bukti</span>
-                      </button>
-                    ) : isOut ? (
-                      <span className="m-card-miss-proof">Belum ada bukti</span>
-                    ) : (
-                      <span />
-                    )}
-
-                    <button
-                      type="button"
-                      className="btn sm ghost"
-                      onClick={() => setTxCetak(b.tx)}
-                      title="Cetak Bukti Voucher Kas (BPK)"
-                    >
-                      <IconPrinter />
-                      <span>Cetak Voucher</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      className="btn sm ghost"
-                      onClick={() => setModalTransaksi({ buka: true, jenisAwal: b.tx.jenis, txEdit: b.tx })}
-                      title="Ubah catatan ini"
-                    >
-                      <IconEdit />
-                      <span>Ubah</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      className="btn sm ghost"
-                      style={{ color: '#d64545' }}
-                      onClick={() => hapusTx(b.tx)}
-                      title="Hapus catatan ini"
-                    >
-                      <IconTrash />
-                      <span>Hapus</span>
-                    </button>
-                  </div>
-                </div>
-              );
-            })
-          )}
-
-          {!memuat && !adaFilter && barisTersaring.length > 0 && (
-            <div className={`mobile-checkpoint-card ${sisa < 0 ? 'defisit' : ''}`}>
-              <span className="m-cp-label">
-                {bulanAktif !== 'all' ? `Saldo Akhir Kas (${formatBulanTahun(bulanAktif)})` : 'Saldo Akhir Buku Kas'}
-              </span>
-              <span className={`m-cp-val ${sisa < 0 ? 'defisit' : ''}`}>{rp(sisa)}</span>
-            </div>
-          )}
-        </div>
-
-        {/* MODE GALERI LAMPIRAN BUKTI TRANSFER (PENGGANTI EXCEL MANUAL) */}
-        <div
-          className="proofs-grid"
-          style={{ display: viewMode === 'proofs' ? 'grid' : 'none' }}
-        >
-          {daftarBukti.length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', padding: '40px 16px', textAlign: 'center', color: 'var(--fg-muted)' }}>
-              Tidak ada bukti pengeluaran yang sesuai dengan filter pencarian.
-            </div>
-          ) : (
-            daftarBukti.map(({ nomor, tx, imgUrl }) => (
-              <div key={tx.id} className="proof-card">
-                <div className="proof-card-header">
-                  <div className="proof-card-num-title">
-                    <span className="proof-card-no">{nomor}.</span>
-                    <span className="proof-card-title" title={tx.deskripsi}>
-                      {tx.deskripsi}
-                    </span>
-                  </div>
-                  <span className={`proof-card-amt ${tx.jenis === 'in' ? 'in' : ''}`}>
-                    {rp(tx.nominal)}
-                  </span>
+              {/* FOOTER LAPORAN RESMI (A4 LANDSCAPE): REKAPITULASI & PENGESAHAN TANDA TANGAN */}
+              <div className="print-footer-layout">
+                <div className="print-rekap-box">
+                  <h3>Rekapitulasi Pengeluaran per Sumber Dana</h3>
+                  <table className="print-rekap-table">
+                    <tbody>
+                      {rekap.map((r) => {
+                        const persentase = totalRekap > 0 ? Math.round((r.total / totalRekap) * 100) : 0;
+                        return (
+                          <tr key={r.nama}>
+                            <td style={{ fontWeight: 600 }}>{r.nama}</td>
+                            <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono)' }}>{rp(r.total)}</td>
+                            <td style={{ textAlign: 'right', color: '#71717a', width: 45 }}>{persentase}%</td>
+                          </tr>
+                        );
+                      })}
+                      <tr>
+                        <td style={{ fontWeight: 700 }}>Total Pengeluaran</td>
+                        <td style={{ textAlign: 'right', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{rp(totalOut)}</td>
+                        <td style={{ textAlign: 'right', fontWeight: 700 }}>100%</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
 
-                <div className="proof-card-meta">
-                  <span>{tglIndo(tx.tanggal)}</span>
-                  <span>{tx.sumber || 'Kas Operasional'}</span>
-                </div>
-
-                {imgUrl ? (
-                  <div
-                    className="proof-card-img-area"
-                    onClick={() => setLihat({ ...tx, buktiUrl: imgUrl })}
-                    title="Klik untuk memperbesar bukti"
-                  >
-                    <img src={imgUrl} alt={tx.deskripsi} className="proof-card-img" />
+                <div className="print-signature-area">
+                  <div className="print-signature-box">
+                    <div className="print-sig-role">Dibuat Oleh:</div>
+                    <div className="print-sig-name">Personal Assistant (PA)</div>
+                    <div className="print-sig-title">Tgl: {tglIndo(new Date().toISOString().slice(0, 10))}</div>
                   </div>
-                ) : (
-                  <div className="proof-card-empty-img">
-                    <IconFile />
-                    <b style={{ fontSize: 11.5 }}>Belum Ada Bukti Transfer</b>
-                    <label className="btn sm outline-success no-print" style={{ marginTop: 6, cursor: 'pointer' }}>
-                      <IconUpload /> Unggah Bukti
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        onChange={(e) => {
-                          if (e.target.files?.[0]) gantiBukti(tx.id, e.target.files[0]);
-                        }}
-                      />
-                    </label>
+                  <div className="print-signature-box">
+                    <div className="print-sig-role">Diperiksa Oleh:</div>
+                    <div className="print-sig-name">Finance / Accounting Direksi</div>
+                    <div className="print-sig-title">Tgl: ...................................</div>
                   </div>
-                )}
-
-                <div className="proof-card-actions no-print">
-                  <button
-                    className="btn sm ghost"
-                    onClick={() => setTxCetak(tx)}
-                    title="Cetak Voucher Kas (BPK)"
-                  >
-                    <IconPrinter /> Voucher
-                  </button>
-
-                  <div style={{ display: 'flex', gap: 4 }}>
-                    {imgUrl && (
-                      <button
-                        className="btn sm"
-                        onClick={() => setLihat({ ...tx, buktiUrl: imgUrl })}
-                        title="Pratinjau Bukti"
-                      >
-                        Perbesar
-                      </button>
-                    )}
-                    <label className="btn sm ghost icon-only" title="Ganti Berkas Bukti" style={{ cursor: 'pointer' }}>
-                      <IconUpload />
-                      <input
-                        type="file"
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        onChange={(e) => {
-                          if (e.target.files?.[0]) gantiBukti(tx.id, e.target.files[0]);
-                        }}
-                      />
-                    </label>
+                  <div className="print-signature-box">
+                    <div className="print-sig-role">Disetujui Oleh:</div>
+                    <div className="print-sig-name">Direktur / Direksi</div>
+                    <div className="print-sig-title">Tgl: ...................................</div>
                   </div>
                 </div>
               </div>
-            ))
+
+              <p className="foot-note">
+                Lampiran bukti didukung OCR otomatis di peramban sebagai rekomendasi isian. Data kas tersimpan konsisten.
+              </p>
+            </>
           )}
-        </div>
-      </section>
 
-      {/* SECTION DUA KOLOM: REKAP & RIWAYAT PENGISIAN */}
-      <div className="cols">
-        {/* REKAP PER SUMBER DANA */}
-        <section className="panel">
-          <div className="panel-h">
-            <div>
-              <h2>Rekap per Sumber Dana</h2>
-              <span className="hint">Distribusi total pengeluaran (Cash Out)</span>
-            </div>
-          </div>
-          <div>
-            {rekap.map((r) => {
-              const persentase = totalRekap > 0 ? Math.round((r.total / totalRekap) * 100) : 0;
-              return (
-                <div className="rekap-row" key={r.nama}>
-                  <span className="nm">
-                    {r.nama}
-                    {r.masuk > 0 && (
-                      <small style={{ display: 'block', fontSize: 10.5, fontWeight: 600, color: 'var(--success)' }}>
-                        +{rp(r.masuk)} masuk
-                      </small>
-                    )}
-                  </span>
-                  <span className="bar">
-                    <i style={{ width: `${(r.total / rekapMax) * 100}%` }} />
-                  </span>
-                  <span className="pct">{persentase}%</span>
-                  <span className="amt">{rp(r.total)}</span>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* RIWAYAT PENGISIAN (CASH IN) */}
-        <section className="panel">
-          <div className="panel-h">
-            <div>
-              <h2>Riwayat Pengisian (Cash In)</h2>
-              <span className="hint">Pencatatan dana masuk &amp; top-up</span>
-            </div>
-            <button
-              className="btn sm success"
-              onClick={() => setModalTransaksi({ buka: true, jenisAwal: 'in' })}
-            >
-              <IconPlus /> Isi Kas
-            </button>
-          </div>
-          <div>
-            {pengisian.map((t) => (
-              <div className="refill-row" key={t.id}>
-                <div>
-                  <div style={{ fontWeight: 600, color: 'var(--ink)' }}>{t.deskripsi}</div>
-                  <div className="dt">{tglIndo(t.tanggal)} {t.sumber ? `· ${t.sumber}` : ''} {t.buktiNama ? `· ${t.buktiNama}` : ''}</div>
-                </div>
-                <span className="amt">+ {rp(t.nominal)}</span>
-                <button
-                  type="button"
-                  className="btn sm no-print"
-                  style={{ padding: '3px 7px', minHeight: 24, borderRadius: 6, color: '#d64545' }}
-                  title="Hapus catatan pengisian ini"
-                  onClick={() => hapusTx(t)}
-                >
-                  <IconTrash />
-                </button>
-              </div>
-            ))}
-            <div className="refill-row">
-              <div>
-                <div style={{ fontWeight: 600 }}>Saldo Awal {bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'Periode'}</div>
-                <div className="dt">{tglIndo(tanggalAwalBulan)}</div>
-              </div>
-              <span className="amt" style={{ color: 'var(--ink)' }}>{rp(saldoAwalBulan)}</span>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      {/* FOOTER LAPORAN RESMI (A4 LANDSCAPE): REKAPITULASI & PENGESAHAN TANDA TANGAN */}
-      <div className="print-footer-layout">
-        <div className="print-rekap-box">
-          <h3>Rekapitulasi Pengeluaran per Sumber Dana</h3>
-          <table className="print-rekap-table">
-            <tbody>
-              {rekap.map((r) => {
-                const persentase = totalRekap > 0 ? Math.round((r.total / totalRekap) * 100) : 0;
-                return (
-                  <tr key={r.nama}>
-                    <td style={{ fontWeight: 600 }}>{r.nama}</td>
-                    <td style={{ textAlign: 'right', fontFamily: 'var(--font-mono)' }}>{rp(r.total)}</td>
-                    <td style={{ textAlign: 'right', color: '#71717a', width: 45 }}>{persentase}%</td>
-                  </tr>
-                );
-              })}
-              <tr>
-                <td style={{ fontWeight: 700 }}>Total Pengeluaran</td>
-                <td style={{ textAlign: 'right', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>{rp(totalOut)}</td>
-                <td style={{ textAlign: 'right', fontWeight: 700 }}>100%</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div className="print-signature-area">
-          <div className="print-signature-box">
-            <div className="print-sig-role">Dibuat Oleh:</div>
-            <div className="print-sig-name">Personal Assistant (PA)</div>
-            <div className="print-sig-title">Tgl: {tglIndo(new Date().toISOString().slice(0, 10))}</div>
-          </div>
-          <div className="print-signature-box">
-            <div className="print-sig-role">Diperiksa Oleh:</div>
-            <div className="print-sig-name">Finance / Accounting Direksi</div>
-            <div className="print-sig-title">Tgl: ...................................</div>
-          </div>
-          <div className="print-signature-box">
-            <div className="print-sig-role">Disetujui Oleh:</div>
-            <div className="print-sig-name">Direktur / Direksi</div>
-            <div className="print-sig-title">Tgl: ...................................</div>
-          </div>
-        </div>
-      </div>
-
-      <p className="foot-note">
-        Lampiran bukti didukung OCR otomatis di peramban sebagai rekomendasi isian. Data kas tersimpan konsisten.
-      </p>
-      </>
-      )}
-
-      {/* TAB KELUARGA DIREKSI */}
-      {tabAktif === 'keluarga' && (
-        <PengeluaranKeluarga
-          daftar={keluargaList}
-          daftarBulan={daftarBulan}
-          bulanAktif={bulanAktifKeluarga}
-          setBulanAktif={setBulanAktifKeluarga}
-          formatBulanTahun={formatBulanTahun}
-          onMuatUlang={() => muat()}
-          onBukaCatat={() => setModalKeluarga({ buka: true, itemEdit: null })}
-          onUbah={(item) => setModalKeluarga({ buka: true, itemEdit: item })}
-          onCetak={cetakLaporanKeluarga}
-        />
-      )}
+          {/* TAB KELUARGA DIREKSI */}
+          {tabAktif === 'keluarga' && (
+            <PengeluaranKeluarga
+              daftar={keluargaList}
+              daftarBulan={daftarBulan}
+              bulanAktif={bulanAktifKeluarga}
+              setBulanAktif={setBulanAktifKeluarga}
+              formatBulanTahun={formatBulanTahun}
+              onMuatUlang={() => muat()}
+              onBukaCatat={() => setModalKeluarga({ buka: true, itemEdit: null })}
+              onUbah={(item) => setModalKeluarga({ buka: true, itemEdit: item })}
+              onCetak={cetakLaporanKeluarga}
+            />
+          )}
         </div>
       </div>
 
@@ -3235,12 +3235,12 @@ function DashboardExecutive({
                         item.sumber === 'SIRCON G71'
                           ? '#2563eb'
                           : item.sumber === 'JSB'
-                          ? '#7c3aed'
-                          : item.sumber === 'Ibu'
-                          ? '#db2777'
-                          : item.sumber === 'W Acct'
-                          ? '#ea580c'
-                          : '#059669',
+                            ? '#7c3aed'
+                            : item.sumber === 'Ibu'
+                              ? '#db2777'
+                              : item.sumber === 'W Acct'
+                                ? '#ea580c'
+                                : '#059669',
                     }}
                   />
                 </div>
