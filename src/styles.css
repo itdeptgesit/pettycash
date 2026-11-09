@@ -1315,6 +1315,82 @@ table.keluarga-table td {
   margin-bottom: 24px;
 }
 
+.print-only-dash {
+  display: none;
+}
+
+.keluarga-report-sheet {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 10px);
+  padding: 32px 36px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  margin-bottom: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+[data-theme="dark"] .keluarga-report-sheet {
+  background: var(--bg-subtle);
+  border-color: var(--border);
+}
+
+.report-header-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 2px solid var(--fg);
+  padding-bottom: 14px;
+  margin-bottom: 22px;
+}
+
+.report-table-formal {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin-bottom: 24px;
+}
+
+.report-table-formal th {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border) !important;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--fg);
+  text-align: left;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+.report-table-formal td {
+  border: 1px solid var(--border) !important;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--fg);
+  vertical-align: middle;
+}
+
+.report-table-formal tfoot td {
+  font-weight: 700;
+  background: var(--bg-subtle);
+  border-top: 2px solid var(--border) !important;
+}
+
+.bukti-img-preview {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.bukti-img-preview:hover {
+  transform: scale(1.05);
+}
+
 th, td {
   padding: 8px 12px;
   border-bottom: 1px solid var(--border);
@@ -3936,11 +4012,60 @@ select:focus, input:focus, textarea:focus {
     font-weight: 700 !important;
   }
 
+  .keluarga-report-sheet,
+  .keluarga-card-table {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  table.keluarga-table thead th,
+  table.report-table-formal thead th {
+    text-transform: none !important;
+    font-size: 7.5pt !important;
+    padding: 4px 6px !important;
+    background: #f4f4f5 !important;
+    color: #18181b !important;
+    border: 0.5pt solid #52525b !important;
+    letter-spacing: normal !important;
+  }
+
+  table.keluarga-table td,
+  table.report-table-formal td {
+    padding: 4.5px 6px !important;
+    font-size: 8pt !important;
+    border: 0.5pt solid #52525b !important;
+    color: #09090b !important;
+  }
+
+  .print-only-dash {
+    display: inline-block !important;
+    text-align: center;
+    width: 100%;
+  }
+
+  .bukti-img-preview {
+    max-height: 70px !important;
+    max-width: 110px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    border: 0.5pt solid #52525b !important;
+    border-radius: 2px !important;
+    display: block !important;
+  }
+
   .print-signature-area {
-    flex: 1.4;
+    width: 100% !important;
     display: flex !important;
-    justify-content: space-between;
-    gap: 4mm;
+    justify-content: space-between !important;
+    gap: 6mm !important;
+    margin-top: 8mm !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   .print-signature-box {

@@ -3695,6 +3695,7 @@ function PengeluaranKeluarga({
   onCetak: () => void;
 }) {
   const [cari, setCari] = useState('');
+  const [tabMode, setTabMode] = useState<'tabel' | 'laporan'>('tabel');
   const [previewBukti, setPreviewBukti] = useState<{ url: string; judul: string } | null>(null);
 
   const items = daftar && daftar.length > 0 ? daftar : loadKeluargaLocal();
@@ -3796,6 +3797,26 @@ function PengeluaranKeluarga({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {/* VIEW SWITCHER TAB: TABEL DATA VS FORMAT LAPORAN RESMI */}
+          <div className="view-tabs no-print">
+            <button
+              type="button"
+              className={`view-tab ${tabMode === 'tabel' ? 'active' : ''}`}
+              onClick={() => setTabMode('tabel')}
+              title="Tampilan Tabel Kelola Data"
+            >
+              Tabel Data
+            </button>
+            <button
+              type="button"
+              className={`view-tab ${tabMode === 'laporan' ? 'active' : ''}`}
+              onClick={() => setTabMode('laporan')}
+              title="Tampilan Format Laporan Resmi (A4)"
+            >
+              Format Laporan (A4)
+            </button>
+          </div>
+
           <button
             type="button"
             className="btn"
@@ -3818,7 +3839,7 @@ function PengeluaranKeluarga({
         </div>
       </div>
 
-      {/* BILAH SIKLUS PERIODE BULANAN (SAMA SEPERTI BUKU KAS) */}
+      {/* BILAH SIKLUS PERIODE BULANAN */}
       <div className="period-bar no-print">
         <div className="period-bar-left">
           <div className="period-badge-tag">
@@ -3890,101 +3911,62 @@ function PengeluaranKeluarga({
         </div>
       </div>
 
-      {/* FULL TABLE CARD CONTAINER */}
-      <div className="keluarga-card-table">
-        {/* TOOLBAR FILTER & SEARCH */}
-        <div
-          className="no-print"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '12px 18px',
-            borderBottom: '1px solid var(--border)',
-            background: 'var(--bg-subtle)',
-            gap: 12,
-            flexWrap: 'wrap',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 240, maxWidth: 420 }}>
-            <div className="search-box" style={{ width: '100%' }}>
-              <IconSearch />
-              <input
-                type="text"
-                placeholder="Cari transaksi pengeluaran keluarga..."
-                value={cari}
-                onChange={(e) => setCari(e.target.value)}
-                style={{ width: '100%', height: 34, fontSize: 12.5 }}
-              />
+      {/* TAMPILAN 1: FORMAT LAPORAN RESMI (A4 PREVIEW) */}
+      {tabMode === 'laporan' && (
+        <div className="keluarga-report-sheet">
+          {/* KOP LAPORAN RESMI (TAMPIL PADA LAYAR PRATINJAU) */}
+          <div className="report-header-preview no-print">
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--fg-muted)', marginBottom: 4 }}>
+                The Gesit Companies · Executive Desk
+              </div>
+              <h1 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 6px', color: 'var(--fg)', letterSpacing: '-0.02em' }}>
+                Laporan Pengeluaran Keluarga Direksi
+              </h1>
+              <div style={{ fontSize: 13, color: 'var(--fg-muted)' }}>
+                Periode:{' '}
+                <b style={{ color: 'var(--fg)' }}>
+                  {bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'Semua Periode'}
+                </b>{' '}
+                · Pengeluaran Khusus Keluarga Direksi (Tab Sheet: Keluarga)
+              </div>
             </div>
-            {cari && (
-              <button
-                type="button"
-                className="btn ghost sm"
-                onClick={() => setCari('')}
-                style={{ fontSize: 11, height: 32 }}
-              >
-                Reset
-              </button>
-            )}
+            <div style={{ textAlign: 'right', fontSize: 12, color: 'var(--fg-muted)', lineHeight: 1.5 }}>
+              <div>Pengelola: <b style={{ color: 'var(--fg)' }}>Personal Assistant (PA) Direksi</b></div>
+              <div>Mata Uang: <b style={{ color: 'var(--fg)' }}>IDR (Rupiah)</b></div>
+              <div>Tanggal Cetak: <b style={{ color: 'var(--fg)' }}>{tglIndo(new Date().toISOString().slice(0, 10))}</b></div>
+            </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span
-              style={{
-                fontSize: 12,
-                fontWeight: 600,
-                padding: '4px 10px',
-                borderRadius: 6,
-                background: 'var(--secondary)',
-                color: 'var(--fg)',
-              }}
-            >
-              Periode: {bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'Semua Periode'}
-            </span>
-            <span style={{ fontSize: 12.5, color: 'var(--fg-muted)', fontWeight: 500 }}>
-              <b>{itemsTersaring.length}</b> dari {itemsPeriode.length} transaksi
-            </span>
-          </div>
-        </div>
-
-        {/* TABEL FULL WIDTH */}
-        <div style={{ overflowX: 'auto', width: '100%' }}>
-          <table className="keluarga-table full-table">
+          {/* TABEL LAPORAN RESMI BERDASARKAN FORMAT YANG DIMINTA */}
+          <table className="report-table-formal">
             <thead>
-              <tr style={{ background: 'var(--bg-subtle)', textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
-                <th style={{ width: 56, textAlign: 'center', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--fg-muted)' }}>No</th>
-                <th style={{ width: 140, fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--fg-muted)' }}>Tanggal</th>
-                <th style={{ fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--fg-muted)' }}>Keterangan / Uraian</th>
-                <th style={{ width: 180, textAlign: 'right', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--fg-muted)' }}>Jumlah (Nominal)</th>
-                <th style={{ width: 220, fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--fg-muted)' }}>Bukti Transfer / Dokumen</th>
-                <th className="no-print" style={{ width: 140, textAlign: 'center', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--fg-muted)' }}>Aksi</th>
+              <tr>
+                <th style={{ width: 50, textAlign: 'center' }}>No</th>
+                <th style={{ width: 140 }}>Tanggal</th>
+                <th>Keterangan / Uraian</th>
+                <th style={{ width: 180, textAlign: 'right' }}>Jumlah (Nominal)</th>
+                <th style={{ width: 240 }}>Bukti Transfer / Dokumen</th>
               </tr>
             </thead>
             <tbody>
-              {itemsTersaring.map((q, qi) => {
+              {itemsPeriode.map((q, qi) => {
                 const driveMatch = q.buktiUrl ? q.buktiUrl.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/) : null;
                 const driveThumbUrl = driveMatch ? `/api/drive-image/${driveMatch[1]}` : null;
                 const displayImgUrl = q.buktiUrl?.startsWith('data:') ? q.buktiUrl : driveThumbUrl;
 
                 return (
-                  <tr
-                    key={q.id || qi}
-                    style={{
-                      borderTop: '1px solid var(--border)',
-                      transition: 'background 0.15s ease',
-                    }}
-                  >
-                    <td style={{ textAlign: 'center', color: 'var(--fg-muted)', fontWeight: 500 }}>
+                  <tr key={q.id || qi}>
+                    <td style={{ textAlign: 'center', fontWeight: 600, color: 'var(--fg-muted)' }}>
                       {q.no || (qi + 1)}
                     </td>
                     <td style={{ whiteSpace: 'nowrap', fontWeight: 500 }}>
                       {q.tanggalTampil || tglIndo(q.tanggal)}
                     </td>
-                    <td style={{ wordBreak: 'break-word', lineHeight: 1.5, fontWeight: 500 }}>
+                    <td style={{ fontWeight: 500, lineHeight: 1.5 }}>
                       {q.keterangan}
                     </td>
-                    <td style={{ textAlign: 'right', fontWeight: 700, whiteSpace: 'nowrap', color: 'var(--fg)' }}>
+                    <td style={{ textAlign: 'right', fontWeight: 700, whiteSpace: 'nowrap', fontFamily: 'var(--font-mono)' }}>
                       {rp(q.jumlah)}
                     </td>
                     <td>
@@ -3994,16 +3976,9 @@ function PengeluaranKeluarga({
                             <img
                               src={displayImgUrl}
                               alt="Bukti Transfer"
+                              className="bukti-img-preview"
                               onClick={() => setPreviewBukti({ url: displayImgUrl, judul: q.keterangan })}
-                              style={{
-                                width: 42,
-                                height: 42,
-                                objectFit: 'cover',
-                                borderRadius: 6,
-                                border: '1px solid var(--border)',
-                                cursor: 'pointer',
-                                flexShrink: 0,
-                              }}
+                              title="Klik untuk memperbesar bukti"
                               onError={(e) => {
                                 (e.target as HTMLElement).style.display = 'none';
                               }}
@@ -4014,149 +3989,345 @@ function PengeluaranKeluarga({
                             target="_blank"
                             rel="noreferrer"
                             style={{
-                              fontSize: 12.5,
+                              fontSize: 12,
                               color: 'var(--accent, #2563eb)',
                               textDecoration: 'none',
-                              wordBreak: 'break-word',
                               fontWeight: 500,
+                              wordBreak: 'break-word',
                             }}
-                            title="Klik untuk membuka dokumen bukti"
                           >
                             {q.buktiNama || 'Lihat Bukti'}
                           </a>
                         </div>
                       ) : (
-                        <button
-                          type="button"
-                          className="btn ghost sm no-print"
-                          onClick={() => onUbah(q)}
-                          style={{ fontSize: 11.5, padding: '3px 8px', color: 'var(--fg-muted)' }}
-                          title="Unggah bukti transfer untuk transaksi ini"
-                        >
-                          + Lampirkan Bukti
-                        </button>
+                        <span style={{ color: 'var(--fg-muted)' }}>—</span>
                       )}
-                    </td>
-                    <td className="no-print" style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
-                      <button
-                        type="button"
-                        className="btn sm"
-                        onClick={() => onUbah(q)}
-                        title="Ubah catatan ini"
-                      >
-                        Ubah
-                      </button>
-                      <button
-                        type="button"
-                        className="btn sm"
-                        style={{ color: '#d64545', marginLeft: 6 }}
-                        onClick={() => hapusKlik(q)}
-                        title="Hapus catatan ini"
-                      >
-                        Hapus
-                      </button>
                     </td>
                   </tr>
                 );
               })}
-              {itemsTersaring.length === 0 && (
+              {itemsPeriode.length === 0 && (
                 <tr>
-                  <td
-                    colSpan={6}
-                    style={{
-                      padding: '48px 16px',
-                      textAlign: 'center',
-                      color: 'var(--fg-muted)',
-                    }}
-                  >
-                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--fg)', marginBottom: 4 }}>
-                      {cari
-                        ? 'Tidak ada hasil yang sesuai dengan pencarian.'
-                        : `Tidak ada transaksi pengeluaran keluarga pada periode ${bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : ''}.`}
-                    </div>
-                    <div style={{ fontSize: 12.5, marginBottom: 12 }}>
-                      {cari
-                        ? `Kata kunci "${cari}" tidak ditemukan.`
-                        : 'Pilih periode bulan lain di atas atau tambahkan catatan baru.'}
-                    </div>
-                    {cari ? (
-                      <button type="button" className="btn sm" onClick={() => setCari('')}>
-                        Hapus Filter Pencarian
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        className="btn primary sm"
-                        onClick={onBukaCatat}
-                      >
-                        <IconPlus />
-                        <span>Catat Pengeluaran Baru</span>
-                      </button>
-                    )}
+                  <td colSpan={5} style={{ padding: 36, textAlign: 'center', color: 'var(--fg-muted)' }}>
+                    Tidak ada transaksi pengeluaran keluarga pada periode {bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : ''}.
                   </td>
                 </tr>
               )}
             </tbody>
-            {itemsTersaring.length > 0 && (
+            {itemsPeriode.length > 0 && (
               <tfoot>
-                <tr style={{ background: 'var(--bg-subtle)', fontWeight: 700, borderTop: '2px solid var(--border)' }}>
-                  <td colSpan={3} style={{ padding: '14px 16px', textAlign: 'right', fontSize: 13, color: 'var(--fg-muted)' }}>
+                <tr>
+                  <td colSpan={3} style={{ textAlign: 'right', fontSize: 13, padding: '12px 14px' }}>
                     Total Pengeluaran {bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'Tercatat'}:
                   </td>
-                  <td style={{ padding: '14px 16px', textAlign: 'right', fontSize: 15, color: 'var(--accent, #2563eb)' }}>
+                  <td style={{ textAlign: 'right', fontSize: 15, padding: '12px 14px', color: 'var(--accent, #2563eb)', fontFamily: 'var(--font-mono)' }}>
                     {rp(totalPeriode)}
                   </td>
-                  <td colSpan={2} style={{ padding: '14px 16px' }}></td>
+                  <td style={{ padding: '12px 14px' }}></td>
                 </tr>
               </tfoot>
             )}
           </table>
-        </div>
 
-        {/* BOTTOM INFO BAR */}
-        <div
-          className="no-print"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '10px 18px',
-            borderTop: '1px solid var(--border)',
-            background: 'var(--bg-subtle)',
-            fontSize: 12,
-            color: 'var(--fg-muted)',
-            flexWrap: 'wrap',
-            gap: 8,
-          }}
-        >
-          <div>
-            Menampilkan <b>{itemsTersaring.length}</b> transaksi pada periode{' '}
-            <b>{bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'Semua Periode'}</b>
+          {/* BLOK TANDA TANGAN FORMAL */}
+          <div className="print-signature-area" style={{ display: 'flex', marginTop: 32 }}>
+            <div className="print-signature-box">
+              <div className="print-sig-role">Disiapkan Oleh:</div>
+              <div className="print-sig-name">Personal Assistant (PA) Direksi</div>
+              <div className="print-sig-title">Tgl: {tglIndo(new Date().toISOString().slice(0, 10))}</div>
+            </div>
+            <div className="print-signature-box">
+              <div className="print-sig-role">Diperiksa Oleh:</div>
+              <div className="print-sig-name">Finance / Accounting</div>
+              <div className="print-sig-title">Tgl: ...................................</div>
+            </div>
+            <div className="print-signature-box">
+              <div className="print-sig-role">Disetujui Oleh:</div>
+              <div className="print-sig-name">Direktur / Direksi</div>
+              <div className="print-sig-title">Tgl: ...................................</div>
+            </div>
           </div>
-          <div>
-            Sinkronisasi: <b>Google Sheets (Tab Keluarga)</b>
-          </div>
-        </div>
-      </div>
 
-      {/* FORMAL SIGNATURES AREA FOR PRINTED REPORT (A4) */}
-      <div className="print-signature-area" style={{ marginTop: 24 }}>
-        <div className="print-signature-box">
-          <div className="print-sig-role">Disiapkan Oleh:</div>
-          <div className="print-sig-name">Personal Assistant (PA) Direksi</div>
-          <div className="print-sig-title">Tgl: {tglIndo(new Date().toISOString().slice(0, 10))}</div>
+          {/* ACTION BUTTONS DALAM PRATINJAU */}
+          <div className="no-print" style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 24, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+            <button type="button" className="btn" onClick={() => setTabMode('tabel')}>
+              Kembali ke Tabel Kelola
+            </button>
+            <button type="button" className="btn primary" onClick={onCetak}>
+              <IconPrinter />
+              <span>Cetak / Cetak PDF Dokumen Ini</span>
+            </button>
+          </div>
         </div>
-        <div className="print-signature-box">
-          <div className="print-sig-role">Diperiksa Oleh:</div>
-          <div className="print-sig-name">Finance / Accounting</div>
-          <div className="print-sig-title">Tgl: ...................................</div>
+      )}
+
+      {/* TAMPILAN 2: TABEL DATA LENGKAP & KELOLA TRANSAKSI */}
+      {tabMode === 'tabel' && (
+        <div className="keluarga-card-table">
+          {/* TOOLBAR FILTER & SEARCH */}
+          <div
+            className="no-print"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px 18px',
+              borderBottom: '1px solid var(--border)',
+              background: 'var(--bg-subtle)',
+              gap: 12,
+              flexWrap: 'wrap',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 240, maxWidth: 420 }}>
+              <div className="search-box" style={{ width: '100%' }}>
+                <IconSearch />
+                <input
+                  type="text"
+                  placeholder="Cari transaksi pengeluaran keluarga..."
+                  value={cari}
+                  onChange={(e) => setCari(e.target.value)}
+                  style={{ width: '100%', height: 34, fontSize: 12.5 }}
+                />
+              </div>
+              {cari && (
+                <button
+                  type="button"
+                  className="btn ghost sm"
+                  onClick={() => setCari('')}
+                  style={{ fontSize: 11, height: 32 }}
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  padding: '4px 10px',
+                  borderRadius: 6,
+                  background: 'var(--secondary)',
+                  color: 'var(--fg)',
+                }}
+              >
+                Periode: {bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'Semua Periode'}
+              </span>
+              <span style={{ fontSize: 12.5, color: 'var(--fg-muted)', fontWeight: 500 }}>
+                <b>{itemsTersaring.length}</b> dari {itemsPeriode.length} transaksi
+              </span>
+            </div>
+          </div>
+
+          {/* TABEL FULL WIDTH */}
+          <div style={{ overflowX: 'auto', width: '100%' }}>
+            <table className="keluarga-table full-table">
+              <thead>
+                <tr style={{ background: 'var(--bg-subtle)', textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
+                  <th style={{ width: 56, textAlign: 'center', fontWeight: 600, fontSize: 12, color: 'var(--fg-muted)' }}>No</th>
+                  <th style={{ width: 140, fontWeight: 600, fontSize: 12, color: 'var(--fg-muted)' }}>Tanggal</th>
+                  <th style={{ fontWeight: 600, fontSize: 12, color: 'var(--fg-muted)' }}>Keterangan / Uraian</th>
+                  <th style={{ width: 180, textAlign: 'right', fontWeight: 600, fontSize: 12, color: 'var(--fg-muted)' }}>Jumlah (Nominal)</th>
+                  <th style={{ width: 220, fontWeight: 600, fontSize: 12, color: 'var(--fg-muted)' }}>Bukti Transfer / Dokumen</th>
+                  <th className="no-print" style={{ width: 140, textAlign: 'center', fontWeight: 600, fontSize: 12, color: 'var(--fg-muted)' }}>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {itemsTersaring.map((q, qi) => {
+                  const driveMatch = q.buktiUrl ? q.buktiUrl.match(/drive\.google\.com\/file\/d\/([A-Za-z0-9_-]+)/) : null;
+                  const driveThumbUrl = driveMatch ? `/api/drive-image/${driveMatch[1]}` : null;
+                  const displayImgUrl = q.buktiUrl?.startsWith('data:') ? q.buktiUrl : driveThumbUrl;
+
+                  return (
+                    <tr
+                      key={q.id || qi}
+                      style={{
+                        borderTop: '1px solid var(--border)',
+                        transition: 'background 0.15s ease',
+                      }}
+                    >
+                      <td style={{ textAlign: 'center', color: 'var(--fg-muted)', fontWeight: 500 }}>
+                        {q.no || (qi + 1)}
+                      </td>
+                      <td style={{ whiteSpace: 'nowrap', fontWeight: 500 }}>
+                        {q.tanggalTampil || tglIndo(q.tanggal)}
+                      </td>
+                      <td style={{ wordBreak: 'break-word', lineHeight: 1.5, fontWeight: 500 }}>
+                        {q.keterangan}
+                      </td>
+                      <td style={{ textAlign: 'right', fontWeight: 700, whiteSpace: 'nowrap', color: 'var(--fg)' }}>
+                        {rp(q.jumlah)}
+                      </td>
+                      <td>
+                        {q.buktiUrl ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            {displayImgUrl && (
+                              <img
+                                src={displayImgUrl}
+                                alt="Bukti Transfer"
+                                className="bukti-img-preview"
+                                onClick={() => setPreviewBukti({ url: displayImgUrl, judul: q.keterangan })}
+                                onError={(e) => {
+                                  (e.target as HTMLElement).style.display = 'none';
+                                }}
+                              />
+                            )}
+                            <a
+                              href={q.buktiUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{
+                                fontSize: 12.5,
+                                color: 'var(--accent, #2563eb)',
+                                textDecoration: 'none',
+                                wordBreak: 'break-word',
+                                fontWeight: 500,
+                              }}
+                              title="Klik untuk membuka dokumen bukti"
+                            >
+                              {q.buktiNama || 'Lihat Bukti'}
+                            </a>
+                          </div>
+                        ) : (
+                          <div>
+                            <button
+                              type="button"
+                              className="btn ghost sm no-print"
+                              onClick={() => onUbah(q)}
+                              style={{ fontSize: 11.5, padding: '3px 8px', color: 'var(--fg-muted)' }}
+                              title="Unggah bukti transfer untuk transaksi ini"
+                            >
+                              + Lampirkan Bukti
+                            </button>
+                            <span className="print-only-dash" style={{ color: 'var(--fg-muted)' }}>—</span>
+                          </div>
+                        )}
+                      </td>
+                      <td className="no-print" style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        <button
+                          type="button"
+                          className="btn sm"
+                          onClick={() => onUbah(q)}
+                          title="Ubah catatan ini"
+                        >
+                          Ubah
+                        </button>
+                        <button
+                          type="button"
+                          className="btn sm"
+                          style={{ color: '#d64545', marginLeft: 6 }}
+                          onClick={() => hapusKlik(q)}
+                          title="Hapus catatan ini"
+                        >
+                          Hapus
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {itemsTersaring.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      style={{
+                        padding: '48px 16px',
+                        textAlign: 'center',
+                        color: 'var(--fg-muted)',
+                      }}
+                    >
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--fg)', marginBottom: 4 }}>
+                        {cari
+                          ? 'Tidak ada hasil yang sesuai dengan pencarian.'
+                          : `Tidak ada transaksi pengeluaran keluarga pada periode ${bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : ''}.`}
+                      </div>
+                      <div style={{ fontSize: 12.5, marginBottom: 12 }}>
+                        {cari
+                          ? `Kata kunci "${cari}" tidak ditemukan.`
+                          : 'Pilih periode bulan lain di atas atau tambahkan catatan baru.'}
+                      </div>
+                      {cari ? (
+                        <button type="button" className="btn sm" onClick={() => setCari('')}>
+                          Hapus Filter Pencarian
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn primary sm"
+                          onClick={onBukaCatat}
+                        >
+                          <IconPlus />
+                          <span>Catat Pengeluaran Baru</span>
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+              {itemsTersaring.length > 0 && (
+                <tfoot>
+                  <tr style={{ background: 'var(--bg-subtle)', fontWeight: 700, borderTop: '2px solid var(--border)' }}>
+                    <td colSpan={3} style={{ padding: '14px 16px', textAlign: 'right', fontSize: 13, color: 'var(--fg-muted)' }}>
+                      Total Pengeluaran {bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'Tercatat'}:
+                    </td>
+                    <td style={{ padding: '14px 16px', textAlign: 'right', fontSize: 15, color: 'var(--accent, #2563eb)' }}>
+                      {rp(totalPeriode)}
+                    </td>
+                    <td style={{ padding: '14px 16px' }}></td>
+                    <td className="no-print" style={{ padding: '14px 16px' }}></td>
+                  </tr>
+                </tfoot>
+              )}
+            </table>
+          </div>
+
+          {/* BOTTOM INFO BAR */}
+          <div
+            className="no-print"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '10px 18px',
+              borderTop: '1px solid var(--border)',
+              background: 'var(--bg-subtle)',
+              fontSize: 12,
+              color: 'var(--fg-muted)',
+              flexWrap: 'wrap',
+              gap: 8,
+            }}
+          >
+            <div>
+              Menampilkan <b>{itemsTersaring.length}</b> transaksi pada periode{' '}
+              <b>{bulanAktif !== 'all' ? formatBulanTahun(bulanAktif) : 'Semua Periode'}</b>
+            </div>
+            <div>
+              Sinkronisasi: <b>Google Sheets (Tab Keluarga)</b>
+            </div>
+          </div>
         </div>
-        <div className="print-signature-box">
-          <div className="print-sig-role">Disetujui Oleh:</div>
-          <div className="print-sig-name">Direktur / Direksi</div>
-          <div className="print-sig-title">Tgl: ...................................</div>
+      )}
+
+      {/* FORMAL SIGNATURES AREA FOR PRINTED REPORT (A4) - SAAT CETAK DARI TABEL DATA */}
+      {tabMode === 'tabel' && (
+        <div className="print-signature-area" style={{ marginTop: 24 }}>
+          <div className="print-signature-box">
+            <div className="print-sig-role">Disiapkan Oleh:</div>
+            <div className="print-sig-name">Personal Assistant (PA) Direksi</div>
+            <div className="print-sig-title">Tgl: {tglIndo(new Date().toISOString().slice(0, 10))}</div>
+          </div>
+          <div className="print-signature-box">
+            <div className="print-sig-role">Diperiksa Oleh:</div>
+            <div className="print-sig-name">Finance / Accounting</div>
+            <div className="print-sig-title">Tgl: ...................................</div>
+          </div>
+          <div className="print-signature-box">
+            <div className="print-sig-role">Disetujui Oleh:</div>
+            <div className="print-sig-name">Direktur / Direksi</div>
+            <div className="print-sig-title">Tgl: ...................................</div>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* MODAL LIGHTBOX PREVIEW BUKTI */}
       {previewBukti && (
@@ -4166,62 +4337,53 @@ function PengeluaranKeluarga({
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0,0,0,0.65)',
+            background: 'rgba(0,0,0,0.78)',
+            zIndex: 9999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 9999,
-            padding: 16,
+            padding: 24,
           }}
         >
           <div
-            className="modal"
-            style={{
-              background: 'var(--bg)',
-              borderRadius: 8,
-              maxWidth: 720,
-              width: '100%',
-              overflow: 'hidden',
-              boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
-            }}
             onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: 720,
+              maxHeight: '90vh',
+              background: 'var(--card)',
+              borderRadius: 12,
+              overflow: 'hidden',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
           >
             <div
               style={{
+                padding: '12px 18px',
+                borderBottom: '1px solid var(--border)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '12px 16px',
-                borderBottom: '1px solid var(--border)',
               }}
             >
-              <h3 style={{ margin: 0, fontSize: 15 }}>{previewBukti.judul}</h3>
-              <button className="btn ghost sm" onClick={() => setPreviewBukti(null)}>
-                ✕
+              <span style={{ fontWeight: 600, fontSize: 13.5, color: 'var(--fg)' }}>
+                {previewBukti.judul}
+              </span>
+              <button
+                type="button"
+                className="btn ghost sm"
+                onClick={() => setPreviewBukti(null)}
+              >
+                ✕ Tutup
               </button>
             </div>
-            <div style={{ padding: 16, textAlign: 'center', maxHeight: '75vh', overflow: 'auto' }}>
+            <div style={{ padding: 16, overflow: 'auto', textAlign: 'center', background: '#0a0a0a' }}>
               <img
                 src={previewBukti.url}
                 alt={previewBukti.judul}
-                style={{ maxWidth: '100%', maxHeight: '65vh', objectFit: 'contain', borderRadius: 4 }}
+                style={{ maxWidth: '100%', maxHeight: '75vh', objectFit: 'contain', borderRadius: 6 }}
               />
-            </div>
-            <div
-              style={{
-                padding: '10px 16px',
-                borderTop: '1px solid var(--border)',
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: 8,
-              }}
-            >
-              <a href={previewBukti.url} target="_blank" rel="noreferrer" className="btn sm">
-                Buka Resolusi Penuh
-              </a>
-              <button className="btn sm primary" onClick={() => setPreviewBukti(null)}>
-                Tutup
-              </button>
             </div>
           </div>
         </div>
