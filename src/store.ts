@@ -71,12 +71,12 @@ export function loginGoogle(): Promise<{ token: string; email: string }> {
 async function parseApiResponse(res: Response, fallbackActionName: string): Promise<any> {
   const ctype = res.headers.get('content-type') || '';
   if (!res.ok) {
-    if (res.status === 404) {
-      throw new Error('Layanan backend API belum aktif di hosting ini (404)');
-    }
     if (ctype.includes('application/json')) {
       const errData = await res.json().catch(() => ({}));
       throw new Error(errData.error || `${fallbackActionName} gagal (status ${res.status})`);
+    }
+    if (res.status === 404) {
+      throw new Error('Layanan backend API belum aktif di hosting ini (404)');
     }
     throw new Error(`Server mengembalikan status HTTP ${res.status}`);
   }
@@ -125,9 +125,15 @@ export async function updateGoogle(tx: Tx, bukti: BuktiFile | null): Promise<Tx>
   return data.tx as Tx;
 }
 
-// Hapus satu transaksi dari Google Sheets (baris dicari dari cap waktu 'dibuat')
+// Hapus satu transaksi dari Google Sheets (baris dicari dari cap waktu 'dibuat' / id / detail)
 export async function deleteGoogle(tx: Tx): Promise<void> {
-  const res = await fetch(`/api/transactions?dibuat=${encodeURIComponent(String(tx.dibuat))}`, {
+  const params = new URLSearchParams();
+  params.set('dibuat', String(tx.dibuat));
+  if (tx.id) params.set('id', tx.id);
+  if (tx.deskripsi) params.set('deskripsi', tx.deskripsi);
+  if (tx.nominal) params.set('nominal', String(tx.nominal));
+  if (tx.tanggal) params.set('tanggal', tx.tanggal);
+  const res = await fetch(`/api/transactions?${params.toString()}`, {
     method: 'DELETE',
   });
   const data = await parseApiResponse(res, 'Menghapus transaksi');
@@ -294,8 +300,14 @@ export async function updateKeluargaGoogle(
   return hasil;
 }
 
-export async function deleteKeluargaGoogle(dibuat: number): Promise<void> {
-  const res = await fetch(`/api/keluarga?dibuat=${encodeURIComponent(String(dibuat))}`, {
+export async function deleteKeluargaGoogle(dibuat: number, item?: Partial<KeluargaItem>): Promise<void> {
+  const params = new URLSearchParams();
+  params.set('dibuat', String(dibuat));
+  if (item?.id) params.set('id', item.id);
+  if (item?.no) params.set('no', item.no);
+  if (item?.keterangan) params.set('keterangan', item.keterangan);
+  if (item?.tanggal) params.set('tanggal', item.tanggal);
+  const res = await fetch(`/api/keluarga?${params.toString()}`, {
     method: 'DELETE',
   });
   const data = await parseApiResponse(res, 'Menghapus catatan keluarga');

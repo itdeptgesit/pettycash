@@ -44,14 +44,14 @@ module.exports = async (req, res) => {
     }
   }
 
-  // DELETE: Hapus transaksi dari Sheet & Drive (berdasarkan cap waktu dibuat)
+  // DELETE: Hapus transaksi dari Sheet & Drive (berdasarkan cap waktu dibuat / ID)
   if (req.method === 'DELETE') {
     try {
       const dibuat = req.query.dibuat;
-      if (!dibuat) {
-        return res.status(400).json({ ok: false, error: 'Parameter dibuat diperlukan' });
+      if (!dibuat && !req.query.id) {
+        return res.status(400).json({ ok: false, error: 'Parameter dibuat atau id diperlukan' });
       }
-      const removed = await googleApi.deleteTransaction(dibuat);
+      const removed = await googleApi.deleteTransaction(dibuat, req.query);
       if (!removed) {
         return res.status(404).json({ ok: false, error: 'Transaksi tidak ditemukan di Sheet' });
       }

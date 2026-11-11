@@ -438,10 +438,24 @@ export default function App() {
       };
     }
 
-    // Akumulasi saldo awal bulan terpilih dari transaksi bulan-bulan sebelumnya
+    // Akumulasi saldo awal bulan terpilih dari transaksi bulan-bulan sebelumnya,
+    // menghormati override saldo awal perantara jika pernah disetel.
     let saldoRollover = saldoAwalCfg.nominal;
+    let cutoffBulan = saldoAwalCfg.tanggal ? saldoAwalCfg.tanggal.slice(0, 7) : '';
+
+    const overrideBulanSebelum = Object.keys(saldoPerBulan)
+      .filter((b) => b < bulanAktif && typeof saldoPerBulan[b] === 'number' && Number.isFinite(saldoPerBulan[b]))
+      .sort()
+      .pop();
+
+    if (overrideBulanSebelum) {
+      saldoRollover = saldoPerBulan[overrideBulanSebelum];
+      cutoffBulan = overrideBulanSebelum;
+    }
+
     terurut.forEach((t) => {
-      if (t.tanggal.slice(0, 7) < bulanAktif) {
+      const tBulan = t.tanggal.slice(0, 7);
+      if (tBulan >= cutoffBulan && tBulan < bulanAktif) {
         saldoRollover += t.jenis === 'in' ? t.nominal : -t.nominal;
       }
     });
@@ -450,7 +464,7 @@ export default function App() {
     const tanggalAwal = `${bulanAktif}-01`;
 
     // Override saldo awal jika disetel khusus untuk bulan ini
-    if (typeof saldoPerBulan[bulanAktif] === 'number') {
+    if (typeof saldoPerBulan[bulanAktif] === 'number' && Number.isFinite(saldoPerBulan[bulanAktif])) {
       saldoRollover = saldoPerBulan[bulanAktif];
     }
 
@@ -616,36 +630,38 @@ export default function App() {
   };
 
   const cetakLaporan = () => {
+    setTabAktif('kas');
+    setViewMode('table');
     setPagePrintStyle('@page { size: A4 landscape; margin: 7mm 7mm 6mm 7mm; }');
     document.body.classList.remove('printing-voucher', 'printing-proofs');
-    window.print();
-    const handleAfter = () => {
-      window.removeEventListener('afterprint', handleAfter);
-    };
-    window.addEventListener('afterprint', handleAfter);
+    setTimeout(() => {
+      window.print();
+    }, 60);
   };
 
   const cetakLaporanKeluarga = () => {
     setTabAktif('keluarga');
     setPagePrintStyle('@page { size: A4 portrait; margin: 8mm; }');
     document.body.classList.remove('printing-voucher', 'printing-proofs');
-    window.print();
-    const handleAfter = () => {
-      window.removeEventListener('afterprint', handleAfter);
-    };
-    window.addEventListener('afterprint', handleAfter);
+    setTimeout(() => {
+      window.print();
+    }, 60);
   };
 
   const cetakLampiranBukti = () => {
+    setTabAktif('kas');
+    setViewMode('proofs');
     setPagePrintStyle('@page { size: A4 landscape; margin: 5mm 6mm 4mm 6mm; }');
     document.body.classList.remove('printing-voucher');
     document.body.classList.add('printing-proofs');
-    window.print();
-    const handleAfter = () => {
-      document.body.classList.remove('printing-proofs');
-      window.removeEventListener('afterprint', handleAfter);
-    };
-    window.addEventListener('afterprint', handleAfter);
+    setTimeout(() => {
+      window.print();
+      const handleAfter = () => {
+        document.body.classList.remove('printing-proofs');
+        window.removeEventListener('afterprint', handleAfter);
+      };
+      window.addEventListener('afterprint', handleAfter);
+    }, 60);
   };
 
   // Render baris tabel
@@ -722,9 +738,9 @@ export default function App() {
       tampil.push(
         <tr key={'cp' + b.tx.id} className="checkpoint">
           <td colSpan={3 + kolomSumber.length} className="lbl">Saldo Checkpoint · {tglIndo(b.tx.tanggal)}</td>
-          <td className="num">{angka(b.saldo)}</td>
-          <td></td>
-          <td></td>
+          <td className="num"><span className="empty">-</span></td>
+          <td className="num"><b>{angka(b.saldo)}</b></td>
+          <td colSpan={2}></td>
         </tr>,
       );
     }
@@ -835,56 +851,6 @@ export default function App() {
                   <span>Keluarga Direksi</span>
                 </div>
                 <span className="sidebar-badge">{keluargaList.length}</span>
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <div className="sidebar-section-label">Laporan &amp; Cetak</div>
-            <div className="sidebar-menu">
-              <button
-                type="button"
-                className="sidebar-item"
-                onClick={() => {
-                  setSidebarBuka(false);
-                  cetakLaporan();
-                }}
-                title="Cetak Buku Kas Lengkap (Format A4 Landscape)"
-              >
-                <div className="sidebar-item-left">
-                  <IconPrinter />
-                  <span>Cetak Buku Kas A4</span>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                className="sidebar-item"
-                onClick={() => {
-                  setSidebarBuka(false);
-                  cetakLaporanKeluarga();
-                }}
-                title="Cetak Laporan Pengeluaran Keluarga Direksi (Format A4 Portrait)"
-              >
-                <div className="sidebar-item-left">
-                  <IconPrinter />
-                  <span>Cetak Lap. Keluarga A4</span>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                className="sidebar-item"
-                onClick={() => {
-                  setSidebarBuka(false);
-                  cetakLampiranBukti();
-                }}
-                title="Cetak Lampiran Bukti Transfer (A4 Landscape · 8 bukti per lembar)"
-              >
-                <div className="sidebar-item-left">
-                  <IconGrid />
-                  <span>Cetak Bukti Transfer</span>
-                </div>
               </button>
             </div>
           </div>
@@ -1316,7 +1282,7 @@ export default function App() {
 
                       {memuat ? (
                         <tr>
-                          <td colSpan={6 + kolomSumber.length}>
+                          <td colSpan={7 + kolomSumber.length}>
                             <div className="loading">
                               <div className="spinner" />
                               <div>Memuat data kas…</div>
@@ -1325,7 +1291,7 @@ export default function App() {
                         </tr>
                       ) : barisTersaring.length === 0 ? (
                         <tr>
-                          <td colSpan={6 + kolomSumber.length}>
+                          <td colSpan={7 + kolomSumber.length}>
                             {adaFilter ? (
                               <div className="table-empty-state">
                                 <div className="empty-state-title">Tidak ada transaksi yang cocok</div>
@@ -1384,9 +1350,9 @@ export default function App() {
                           <td colSpan={3 + kolomSumber.length} className="lbl">
                             {bulanAktif !== 'all' ? `Saldo Akhir Kas (${formatBulanTahun(bulanAktif)})` : 'Saldo Akhir Buku Kas'}
                           </td>
-                          <td className="num" style={{ color: 'var(--primary)', fontSize: 14 }}>{angka(sisa)}</td>
-                          <td></td>
-                          <td></td>
+                          <td className="num"><span className="empty">-</span></td>
+                          <td className="num" style={{ color: 'var(--primary)', fontSize: 14 }}><b>{angka(sisa)}</b></td>
+                          <td colSpan={2}></td>
                         </tr>
                       )}
 
@@ -2414,11 +2380,23 @@ function ModalCetakBukti({ tx, onTutup }: { tx: Tx; onTutup: () => void }) {
   }, [onTutup]);
 
   const cetak = () => {
+    let el = document.getElementById('dynamic-page-print');
+    if (!el) {
+      el = document.createElement('style');
+      el.id = 'dynamic-page-print';
+      document.head.appendChild(el);
+    }
+    el.innerHTML = '@page { size: A4 portrait; margin: 10mm; }';
     document.body.classList.add('printing-voucher');
     window.print();
+    const handleAfter = () => {
+      document.body.classList.remove('printing-voucher');
+      window.removeEventListener('afterprint', handleAfter);
+    };
+    window.addEventListener('afterprint', handleAfter);
     setTimeout(() => {
       document.body.classList.remove('printing-voucher');
-    }, 500);
+    }, 1000);
   };
 
   const bisaGambar =

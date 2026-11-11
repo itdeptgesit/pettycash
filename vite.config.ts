@@ -95,13 +95,19 @@ function googleApiPlugin(): Plugin {
             }
             if (req.method === 'DELETE') {
               const dibuat = url.searchParams.get('dibuat');
-              if (!dibuat) {
+              const queryObj = Object.fromEntries(url.searchParams.entries());
+              if (!dibuat && !queryObj.id) {
                 res.statusCode = 400;
-                res.end(JSON.stringify({ ok: false, error: 'Parameter dibuat diperlukan' }));
+                res.end(JSON.stringify({ ok: false, error: 'Parameter dibuat atau id diperlukan' }));
                 return;
               }
-              const removed = await googleApi.deleteTransaction(dibuat);
-              res.end(JSON.stringify({ ok: !!removed }));
+              const removed = await googleApi.deleteTransaction(dibuat, queryObj);
+              if (!removed) {
+                res.statusCode = 404;
+                res.end(JSON.stringify({ ok: false, error: 'Transaksi tidak ditemukan di Sheet' }));
+                return;
+              }
+              res.end(JSON.stringify({ ok: true }));
               return;
             }
           }
@@ -171,8 +177,19 @@ function googleApiPlugin(): Plugin {
             }
             if (req.method === 'DELETE') {
               const dibuat = url.searchParams.get('dibuat');
-              const removed = await googleApi.deleteKeluarga(dibuat);
-              res.end(JSON.stringify({ ok: !!removed }));
+              const queryObj = Object.fromEntries(url.searchParams.entries());
+              if (!dibuat && !queryObj.id && !queryObj.no) {
+                res.statusCode = 400;
+                res.end(JSON.stringify({ ok: false, error: 'Parameter dibuat atau id diperlukan' }));
+                return;
+              }
+              const removed = await googleApi.deleteKeluarga(dibuat, queryObj);
+              if (!removed) {
+                res.statusCode = 404;
+                res.end(JSON.stringify({ ok: false, error: 'Catatan keluarga tidak ditemukan di Sheet' }));
+                return;
+              }
+              res.end(JSON.stringify({ ok: true }));
               return;
             }
           }

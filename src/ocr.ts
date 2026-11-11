@@ -26,7 +26,9 @@ function parseNominal(teks: string): number | null {
     if (m) sumber.push(m[1]);
   }
   for (const s of sumber) {
-    const n = Number(s.replace(/[.,](?=\d{2}$)/, '').replace(/[.,]/g, ''));
+    // Hilangkan 2 digit sen di ujung (misal ,00 atau .00) agar tidak terkalikan 100x
+    const bersihSen = s.replace(/[.,]\d{2}$/, '');
+    const n = Number(bersihSen.replace(/[.,]/g, ''));
     if (Number.isFinite(n) && n >= 1000) kandidat.push(n);
   }
   if (kunci && kandidat.length) return kandidat[0];
@@ -37,18 +39,35 @@ function parseTanggal(teks: string): string | null {
   const t = teks.replace(/\s+/g, ' ');
   let m = t.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/);
   if (m) {
-    const [, d, mo, y] = m;
-    return `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`;
+    let d = parseInt(m[1], 10);
+    let mo = parseInt(m[2], 10);
+    const y = m[3];
+    // Jika format US MM/DD/YYYY (mo > 12 dan d <= 12)
+    if (mo > 12 && d <= 12) {
+      const tmp = d;
+      d = mo;
+      mo = tmp;
+    }
+    if (d >= 1 && d <= 31 && mo >= 1 && mo <= 12) {
+      return `${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    }
   }
   m = t.match(/(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})/);
   if (m) {
-    const [, y, mo, d] = m;
-    return `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`;
+    const y = m[1];
+    const mo = parseInt(m[2], 10);
+    const d = parseInt(m[3], 10);
+    if (d >= 1 && d <= 31 && mo >= 1 && mo <= 12) {
+      return `${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    }
   }
   m = t.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
   if (m) {
+    const d = parseInt(m[1], 10);
     const mo = BULAN_ID[m[2].toLowerCase().slice(0, 3)] || BULAN_ID[m[2].toLowerCase()];
-    if (mo) return `${m[3]}-${String(mo).padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+    if (mo && d >= 1 && d <= 31) {
+      return `${m[3]}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    }
   }
   return null;
 }
